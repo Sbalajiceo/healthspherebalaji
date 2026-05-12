@@ -13,6 +13,7 @@ import AppointmentsScreen from './AppointmentsScreen';
 import WaitingRoomScreen from './WaitingRoomScreen';
 import ChatScreen from './ChatScreen';
 import { useAppointments } from '../contexts/AppointmentsContext';
+import LabBookingScreen from './LabBookingScreen';
 
 export default function HomeScreen({ setActiveTab }: { setActiveTab: (tab: string) => void }) {
   const { pushScreen } = useNavigation();
@@ -134,7 +135,7 @@ export default function HomeScreen({ setActiveTab }: { setActiveTab: (tab: strin
         {[
           { icon: Stethoscope, label: 'Consult', color: 'from-[#6C63FF] to-[#8B8FA8]', delay: 0.3, id: 'consult' },
           { icon: Pill, label: 'Pharmacy', color: 'from-[#00D4AA] to-[#008A70]', delay: 0.35, id: 'medicines' },
-          { icon: Droplet, label: 'Book Lab', color: 'from-[#FF6B9D] to-[#FF9F7F]', delay: 0.4, id: 'records' },
+          { icon: Droplet, label: 'Book Lab', color: 'from-[#FF6B9D] to-[#FF9F7F]', delay: 0.4, id: 'book-lab', isScreen: true },
           { icon: HeartPulse, label: 'Vitals', color: 'from-[#FFB347] to-[#FF6B6B]', delay: 0.45, id: 'wellness' },
           { icon: Bell, label: 'Reminders', color: 'from-[#9D4DFF] to-[#8D45E6]', delay: 0.5, id: 'reminders', isScreen: true },
           { icon: Activity, label: 'Health Score', color: 'from-[#FF6B6B] to-[#E55A5A]', delay: 0.55, id: 'health-score', isScreen: true },
@@ -156,6 +157,8 @@ export default function HomeScreen({ setActiveTab }: { setActiveTab: (tab: strin
                   pushScreen({ id: 'scribe', component: <MedicalScribeScreen /> });
                 } else if (action.id === 'appointments') {
                   pushScreen({ id: 'appointments', component: <AppointmentsScreen /> });
+                } else if (action.id === 'book-lab') {
+                  pushScreen({ id: 'book-lab', component: <LabBookingScreen /> });
                 }
               } else {
                 setActiveTab(action.id);

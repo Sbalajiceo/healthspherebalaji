@@ -108,6 +108,11 @@ export default function RecordsScreen() {
   const [addRecordNotes, setAddRecordNotes] = useState('');
   const [addRecordFile, setAddRecordFile] = useState<string | null>(null);
 
+  const [vitalsBP, setVitalsBP] = useState('');
+  const [vitalsHR, setVitalsHR] = useState('');
+  const [vitalsWeight, setVitalsWeight] = useState('');
+  const [vitalsSugar, setVitalsSugar] = useState('');
+
   const currentTimeline = timelineData[activeMember] || [];
   const currentSummary = summaryData[activeMember];
 
@@ -137,6 +142,28 @@ export default function RecordsScreen() {
     }
     setSharedItemId(item.id);
     setTimeout(() => setSharedItemId(null), 2000);
+  };
+
+  const handleSaveVitals = () => {
+    if (!vitalsBP && !vitalsHR && !vitalsWeight && !vitalsSugar) return;
+    const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const newRecord = {
+      id: Date.now(),
+      date: today,
+      type: 'vitals',
+      title: 'Vitals Logged',
+      data: {
+        bp: vitalsBP || '—',
+        hr: vitalsHR || '—',
+        weight: vitalsWeight ? `${vitalsWeight}kg` : '—',
+        sugar: vitalsSugar ? `${vitalsSugar} mg/dL` : '—',
+      },
+      color: 'from-[#00D4AA] to-[#008A70]',
+      icon: Activity,
+    };
+    setTimelineData(prev => ({ ...prev, [activeMember]: [newRecord, ...(prev[activeMember] || [])] }));
+    setShowVitalsSheet(false);
+    setVitalsBP(''); setVitalsHR(''); setVitalsWeight(''); setVitalsSugar('');
   };
 
   const handleSaveRecord = () => {
@@ -643,7 +670,7 @@ export default function RecordsScreen() {
                   </div>
                   <div className="flex-1">
                     <label className="block text-xs font-bold text-[#8B8FA8] uppercase tracking-wider mb-1">Blood Pressure</label>
-                    <input type="text" inputMode="numeric" placeholder="120/80" className="w-full bg-transparent text-xl font-mono font-bold text-white focus:outline-none placeholder:text-white/20" />
+                    <input type="text" inputMode="numeric" value={vitalsBP} onChange={e => setVitalsBP(e.target.value)} placeholder="120/80" className="w-full bg-transparent text-xl font-mono font-bold text-white focus:outline-none placeholder:text-white/20" />
                   </div>
                 </div>
                 
@@ -653,7 +680,7 @@ export default function RecordsScreen() {
                   </div>
                   <div className="flex-1">
                     <label className="block text-xs font-bold text-[#8B8FA8] uppercase tracking-wider mb-1">Heart Rate</label>
-                    <input type="number" inputMode="numeric" placeholder="72" className="w-full bg-transparent text-xl font-mono font-bold text-white focus:outline-none placeholder:text-white/20" />
+                    <input type="number" inputMode="numeric" value={vitalsHR} onChange={e => setVitalsHR(e.target.value)} placeholder="72" className="w-full bg-transparent text-xl font-mono font-bold text-white focus:outline-none placeholder:text-white/20" />
                   </div>
                   <span className="text-[#8B8FA8] font-bold text-sm">bpm</span>
                 </div>
@@ -664,7 +691,7 @@ export default function RecordsScreen() {
                   </div>
                   <div className="flex-1">
                     <label className="block text-xs font-bold text-[#8B8FA8] uppercase tracking-wider mb-1">Weight</label>
-                    <input type="number" inputMode="decimal" placeholder="70.5" className="w-full bg-transparent text-xl font-mono font-bold text-white focus:outline-none placeholder:text-white/20" />
+                    <input type="number" inputMode="decimal" value={vitalsWeight} onChange={e => setVitalsWeight(e.target.value)} placeholder="70.5" className="w-full bg-transparent text-xl font-mono font-bold text-white focus:outline-none placeholder:text-white/20" />
                   </div>
                   <span className="text-[#8B8FA8] font-bold text-sm">kg</span>
                 </div>
@@ -675,15 +702,16 @@ export default function RecordsScreen() {
                   </div>
                   <div className="flex-1">
                     <label className="block text-xs font-bold text-[#8B8FA8] uppercase tracking-wider mb-1">Blood Sugar</label>
-                    <input type="number" inputMode="numeric" placeholder="95" className="w-full bg-transparent text-xl font-mono font-bold text-white focus:outline-none placeholder:text-white/20" />
+                    <input type="number" inputMode="numeric" value={vitalsSugar} onChange={e => setVitalsSugar(e.target.value)} placeholder="95" className="w-full bg-transparent text-xl font-mono font-bold text-white focus:outline-none placeholder:text-white/20" />
                   </div>
                   <span className="text-[#8B8FA8] font-bold text-sm">mg/dL</span>
                 </div>
               </div>
 
-              <button 
-                onClick={() => setShowVitalsSheet(false)}
-                className="w-full py-4 rounded-full font-bold text-lg transition-all bg-primary-gradient text-white shadow-[0_4px_20px_rgba(108,99,255,0.3)] hover:scale-[1.02]"
+              <button
+                onClick={handleSaveVitals}
+                disabled={!vitalsBP && !vitalsHR && !vitalsWeight && !vitalsSugar}
+                className="w-full py-4 rounded-full font-bold text-lg transition-all bg-primary-gradient text-white shadow-[0_4px_20px_rgba(108,99,255,0.3)] hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Save Vitals
               </button>

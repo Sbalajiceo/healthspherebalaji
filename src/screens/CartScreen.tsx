@@ -1,21 +1,31 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, Trash2, CheckCircle2, ShoppingBag, Truck, CreditCard, Plus, Minus } from 'lucide-react';
+import { ChevronLeft, Trash2, CheckCircle2, ShoppingBag, Truck, CreditCard, Plus, Minus, Package } from 'lucide-react';
 import { useNavigation } from '../contexts/NavigationContext';
 import { useCart } from '../contexts/CartContext';
+import { useOrders } from '../contexts/OrdersContext';
+import OrdersScreen from './OrdersScreen';
 
 export default function CartScreen() {
-  const { popScreen } = useNavigation();
+  const { popScreen, pushScreen } = useNavigation();
   const { items, removeItem, updateQty, totalPrice, clearCart } = useCart();
+  const { addOrder } = useOrders();
   const [isSuccess, setIsSuccess] = useState(false);
-  const [orderId] = useState(() => Math.floor(Math.random() * 900000) + 100000);
+  const [orderId, setOrderId] = useState('');
 
   const taxes = Math.round(totalPrice * 0.05);
   const toPay = totalPrice + taxes;
 
   const handleCheckout = () => {
-    setIsSuccess(true);
+    const id = addOrder(
+      items.map(i => ({ id: i.id, name: i.name, salt: i.salt, qty: i.qty, price: i.price })),
+      totalPrice,
+      taxes,
+      toPay,
+    );
+    setOrderId(id);
     clearCart();
+    setIsSuccess(true);
   };
 
   return (
@@ -170,8 +180,14 @@ export default function CartScreen() {
             </div>
 
             <button
+              onClick={() => pushScreen({ id: 'orders', component: <OrdersScreen /> })}
+              className="w-full h-14 rounded-2xl bg-[#1A201D] font-bold text-white hover:bg-white/10 transition-colors border border-white/5 flex items-center justify-center gap-2 mb-3"
+            >
+              <Package size={18} /> View My Orders
+            </button>
+            <button
               onClick={popScreen}
-              className="w-full h-14 rounded-2xl bg-[#1A201D] font-bold text-white hover:bg-white/10 transition-colors border border-white/5"
+              className="w-full h-12 rounded-2xl text-[#9CA3AF] font-medium text-sm"
             >
               Back to Medicines
             </button>

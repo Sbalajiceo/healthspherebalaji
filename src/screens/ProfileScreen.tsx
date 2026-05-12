@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { User, Users, Smartphone, CreditCard, Settings, HelpCircle, LogOut, ChevronRight, Activity, ArrowLeft } from 'lucide-react';
+import { User, Users, Smartphone, CreditCard, Settings, HelpCircle, LogOut, ChevronRight, Activity, ArrowLeft, ShoppingBag } from 'lucide-react';
 import { useNavigation } from '../contexts/NavigationContext';
 import PersonalInformationScreen from './profile/PersonalInformationScreen';
 import FamilyMembersScreen from './profile/FamilyMembersScreen';
@@ -8,6 +8,7 @@ import LinkedDevicesScreen from './profile/LinkedDevicesScreen';
 import PaymentMethodsScreen from './profile/PaymentMethodsScreen';
 import SettingsPrivacyScreen from './profile/SettingsPrivacyScreen';
 import HelpSupportScreen from './profile/HelpSupportScreen';
+import OrdersScreen from './OrdersScreen';
 
 export default function ProfileScreen() {
   const { popScreen, pushScreen } = useNavigation();
@@ -67,6 +68,7 @@ export default function ProfileScreen() {
       {/* Options List */}
       <div className="space-y-3">
         {[
+          { icon: ShoppingBag, label: 'My Orders', color: 'text-[#84CC16]', id: 'orders', component: <OrdersScreen /> },
           { icon: User, label: 'Personal Information', color: 'text-[#6C63FF]', id: 'personal-info', component: <PersonalInformationScreen /> },
           { icon: Users, label: 'Family Members', color: 'text-[#00D4AA]', id: 'family-members', component: <FamilyMembersScreen /> },
           { icon: Smartphone, label: 'Linked Devices', color: 'text-[#FFB347]', id: 'linked-devices', component: <LinkedDevicesScreen /> },

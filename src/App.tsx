@@ -15,6 +15,7 @@ import { NavigationProvider, useNavigation } from './contexts/NavigationContext'
 import { ReminderProvider } from './contexts/ReminderContext';
 import { CartProvider } from './contexts/CartContext';
 import { AppointmentsProvider } from './contexts/AppointmentsContext';
+import { OrdersProvider } from './contexts/OrdersContext';
 
 function MainApp() {
   const [activeTab, setActiveTab] = useState('home');
@@ -68,11 +69,13 @@ export default function App() {
   return (
     <NavigationProvider>
       <CartProvider>
+        <OrdersProvider>
         <AppointmentsProvider>
           <ReminderProvider>
             <MainApp />
           </ReminderProvider>
         </AppointmentsProvider>
+        </OrdersProvider>
       </CartProvider>
     </NavigationProvider>
   );
