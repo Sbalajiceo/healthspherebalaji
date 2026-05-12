@@ -3,9 +3,11 @@ import { motion } from 'motion/react';
 import { ChevronLeft, Share, TrendingUp, Check, Clock, Droplet } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { useNavigation } from '../contexts/NavigationContext';
+import MedicineDetailScreen from './MedicineDetailScreen';
+import RecordsScreen from './RecordsScreen';
 
 export default function HealthScoreScreen({ member }: { member?: any }) {
-  const { popScreen } = useNavigation();
+  const { popScreen, pushScreen } = useNavigation();
   const [currentWater, setCurrentWater] = useState(1400);
   const [activeVitalTab, setActiveVitalTab] = useState<'hr' | 'bp' | 'spo2' | 'sugar'>('hr');
   const maxWater = 2500;
@@ -209,8 +211,8 @@ export default function HealthScoreScreen({ member }: { member?: any }) {
             </div>
             <div className="text-[13px] text-[#9CA3AF] mt-0.5">8:00 AM</div>
           </div>
-          <button 
-            onClick={() => alert('Redirecting to Wellness Store for Amlodipine refill')}
+          <button
+            onClick={() => pushScreen({ id: 'med-amlodipine', component: <MedicineDetailScreen medicine={{ brand_name: 'Amlong 5mg', salt_name: 'Amlodipine (5mg)', generic_available: true, brand_price_inr: 45, generic_price_inr: 15, savings_inr: 30, image: null }} /> })}
             className="bg-[#FF6B35] text-white border-none px-3 py-1.5 rounded-xl text-xs font-semibold ml-3"
           >
             REFILL
@@ -409,7 +411,7 @@ export default function HealthScoreScreen({ member }: { member?: any }) {
             </div>
             <div className="text-sm font-semibold mb-1">Blood Report</div>
             <div className="text-xs text-[#9CA3AF] mb-3">12 Mar</div>
-            <a href="#" className="text-[13px] font-medium mt-auto" style={{ color: color2 }}>View</a>
+            <button onClick={() => pushScreen({ id: 'records', component: <RecordsScreen /> })} className="text-[13px] font-medium mt-auto text-left" style={{ color: color2 }}>View</button>
           </div>
           
           <div className="shrink-0 w-[160px] bg-[#1A1A1A] rounded-2xl p-4 flex flex-col border border-white/5">
@@ -419,7 +421,7 @@ export default function HealthScoreScreen({ member }: { member?: any }) {
             </div>
             <div className="text-sm font-semibold mb-1">ECG Report</div>
             <div className="text-xs text-[#9CA3AF] mb-3">28 Feb</div>
-            <a href="#" className="text-[13px] font-medium mt-auto" style={{ color: color2 }}>View</a>
+            <button onClick={() => pushScreen({ id: 'records', component: <RecordsScreen /> })} className="text-[13px] font-medium mt-auto text-left" style={{ color: color2 }}>View</button>
           </div>
           
           <div className="shrink-0 w-[160px] bg-[#1A1A1A] rounded-2xl p-4 flex flex-col border border-white/5">
@@ -429,7 +431,7 @@ export default function HealthScoreScreen({ member }: { member?: any }) {
             </div>
             <div className="text-sm font-semibold mb-1">Vitamin D Test</div>
             <div className="text-xs text-[#9CA3AF] mb-3">15 Feb</div>
-            <a href="#" className="text-[13px] font-medium mt-auto" style={{ color: color2 }}>View</a>
+            <button onClick={() => pushScreen({ id: 'records', component: <RecordsScreen /> })} className="text-[13px] font-medium mt-auto text-left" style={{ color: color2 }}>View</button>
           </div>
         </div>
       </motion.div>

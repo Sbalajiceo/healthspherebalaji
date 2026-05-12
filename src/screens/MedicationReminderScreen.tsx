@@ -214,9 +214,9 @@ export default function MedicationReminderScreen() {
               </p>
               
               <div className="space-y-4 mb-8">
-                <button className="w-full glass-card rounded-2xl p-5 border border-white/5 flex flex-col items-start text-left hover:bg-white/5 transition-colors">
-                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center mb-3">
-                    <ScanLine size={20} className="text-[#8B8FA8]" />
+                <button onClick={openAddForm} className="w-full glass-card rounded-2xl p-5 border border-white/5 flex flex-col items-start text-left hover:bg-white/5 transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-[#6C63FF]/20 flex items-center justify-center mb-3">
+                    <ScanLine size={20} className="text-[#6C63FF]" />
                   </div>
                   <h3 className="font-bold text-lg mb-1">Scan with AI</h3>
                   <p className="text-[#8B8FA8] text-sm">Setup medication/supplements based on our AI Scan, intuitively.</p>

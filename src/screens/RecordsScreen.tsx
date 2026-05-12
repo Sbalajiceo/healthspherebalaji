@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Activity, FileText, Beaker, ChevronDown, Plus, X, Upload, Share2, HeartPulse, Droplets, Scale, Stethoscope, Camera } from 'lucide-react';
+import { Sparkles, Activity, FileText, Beaker, ChevronDown, Plus, X, Upload, Share2, HeartPulse, Droplets, Scale, Stethoscope, Camera, Check } from 'lucide-react';
 import { generateHealthSummary } from '../services/geminiService';
 
 const INITIAL_FAMILY_MEMBERS = [
@@ -100,6 +100,7 @@ export default function RecordsScreen() {
   const [showVitalsSheet, setShowVitalsSheet] = useState(false);
   const [showPrescriptionUpload, setShowPrescriptionUpload] = useState(false);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [sharedItemId, setSharedItemId] = useState<number | null>(null);
 
   const currentTimeline = timelineData[activeMember] || [];
   const currentSummary = summaryData[activeMember];
@@ -119,6 +120,17 @@ export default function RecordsScreen() {
     const result = await generateHealthSummary(currentTimeline, context);
     setSummaryData(prev => ({ ...prev, [activeMember]: result }));
     setIsGenerating(false);
+  };
+
+  const handleShareWithDoctor = async (item: any) => {
+    const text = `Health record: ${item.title} (${item.date})`;
+    if (navigator.share) {
+      try { await navigator.share({ title: item.title, text }); } catch {}
+    } else {
+      try { await navigator.clipboard.writeText(text); } catch {}
+    }
+    setSharedItemId(item.id);
+    setTimeout(() => setSharedItemId(null), 2000);
   };
 
   const handleAddMember = () => {
@@ -369,8 +381,15 @@ export default function RecordsScreen() {
                       className="overflow-hidden"
                     >
                       <div className="pt-4 mt-4 border-t border-white/10 flex justify-end">
-                        <button className="flex items-center text-sm font-bold text-[#6C63FF] hover:text-[#8B8FA8] transition-colors">
-                          <Share2 size={16} className="mr-2" /> Share with Doctor
+                        <button
+                          onClick={() => handleShareWithDoctor(item)}
+                          className="flex items-center text-sm font-bold transition-colors text-[#6C63FF] hover:text-[#8B8FA8]"
+                        >
+                          {sharedItemId === item.id ? (
+                            <><Check size={16} className="mr-2 text-[#00D4AA]" /><span className="text-[#00D4AA]">Shared!</span></>
+                          ) : (
+                            <><Share2 size={16} className="mr-2" /> Share with Doctor</>
+                          )}
                         </button>
                       </div>
                     </motion.div>
