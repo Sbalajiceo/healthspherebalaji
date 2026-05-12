@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Activity, Calendar, Droplet, HeartPulse, Pill, Stethoscope, Bell } from 'lucide-react';
+import { Activity, Calendar, Droplet, HeartPulse, Pill, Stethoscope, Bell, ScanLine, Mic } from 'lucide-react';
 import { useNavigation } from '../contexts/NavigationContext';
 import ProfileScreen from './ProfileScreen';
 import HealthScoreScreen from './HealthScoreScreen';
@@ -7,6 +7,9 @@ import FamilyListScreen, { FAMILY_MEMBERS } from './FamilyListScreen';
 import FamilyMemberScoreScreen from './FamilyMemberScoreScreen';
 import MedicationReminderScreen from './MedicationReminderScreen';
 import MedicineDetailScreen from './MedicineDetailScreen';
+import SymptomCheckerScreen from './SymptomCheckerScreen';
+import MedicalScribeScreen from './MedicalScribeScreen';
+import AppointmentsScreen from './AppointmentsScreen';
 
 export default function HomeScreen({ setActiveTab }: { setActiveTab: (tab: string) => void }) {
   const { pushScreen } = useNavigation();
@@ -130,6 +133,9 @@ export default function HomeScreen({ setActiveTab }: { setActiveTab: (tab: strin
           { icon: HeartPulse, label: 'Vitals', color: 'from-[#FFB347] to-[#FF6B6B]', delay: 0.45, id: 'wellness' },
           { icon: Bell, label: 'Reminders', color: 'from-[#9D4DFF] to-[#8D45E6]', delay: 0.5, id: 'reminders', isScreen: true },
           { icon: Activity, label: 'Health Score', color: 'from-[#FF6B6B] to-[#E55A5A]', delay: 0.55, id: 'health-score', isScreen: true },
+          { icon: ScanLine, label: 'Symptom AI', color: 'from-[#00D4AA] to-[#6C63FF]', delay: 0.6, id: 'symptom-checker', isScreen: true },
+          { icon: Mic, label: 'Scribe', color: 'from-[#FF6B9D] to-[#9D4DFF]', delay: 0.65, id: 'scribe', isScreen: true },
+          { icon: Calendar, label: 'Appointments', color: 'from-[#FFB347] to-[#FF9F7F]', delay: 0.7, id: 'appointments', isScreen: true },
         ].map((action, i) => (
           <motion.button
             key={action.label}
@@ -139,6 +145,12 @@ export default function HomeScreen({ setActiveTab }: { setActiveTab: (tab: strin
                   pushScreen({ id: 'health-score', component: <HealthScoreScreen member={FAMILY_MEMBERS.find(m => m.name === 'Sandeep')} /> });
                 } else if (action.id === 'reminders') {
                   pushScreen({ id: 'reminders', component: <MedicationReminderScreen /> });
+                } else if (action.id === 'symptom-checker') {
+                  pushScreen({ id: 'symptom-checker', component: <SymptomCheckerScreen /> });
+                } else if (action.id === 'scribe') {
+                  pushScreen({ id: 'scribe', component: <MedicalScribeScreen /> });
+                } else if (action.id === 'appointments') {
+                  pushScreen({ id: 'appointments', component: <AppointmentsScreen /> });
                 }
               } else {
                 setActiveTab(action.id);

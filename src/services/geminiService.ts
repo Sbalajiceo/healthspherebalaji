@@ -209,6 +209,53 @@ export async function findGenericAlternatives(medicineQuery: string) {
   }
 }
 
+export async function generateMedicalNote(transcript: string) {
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: `Extract a structured medical note from this consultation transcript: "${transcript}"`,
+      config: {
+        systemInstruction: SYSTEM_INSTRUCTION,
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            note: {
+              type: Type.OBJECT,
+              properties: {
+                chief_complaint: { type: Type.STRING },
+                symptoms: { type: Type.ARRAY, items: { type: Type.STRING } },
+                diagnosis: { type: Type.STRING },
+                prescription: {
+                  type: Type.ARRAY,
+                  items: {
+                    type: Type.OBJECT,
+                    properties: {
+                      name: { type: Type.STRING },
+                      dosage: { type: Type.STRING },
+                      frequency: { type: Type.STRING },
+                      duration: { type: Type.STRING },
+                    },
+                    required: ['name', 'dosage', 'frequency', 'duration']
+                  }
+                },
+                advice: { type: Type.ARRAY, items: { type: Type.STRING } },
+                follow_up: { type: Type.STRING },
+              },
+              required: ['chief_complaint', 'symptoms', 'diagnosis', 'prescription', 'advice', 'follow_up']
+            }
+          },
+          required: ['note']
+        }
+      }
+    });
+    return JSON.parse(response.text || '{}').note;
+  } catch (error) {
+    console.error('Medical note error:', error);
+    return null;
+  }
+}
+
 export async function scanPrescription(base64Image: string) {
   try {
     const response = await ai.models.generateContent({

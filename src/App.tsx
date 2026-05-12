@@ -14,6 +14,7 @@ import WellnessScreen from './screens/WellnessScreen';
 import { NavigationProvider, useNavigation } from './contexts/NavigationContext';
 import { ReminderProvider } from './contexts/ReminderContext';
 import { CartProvider } from './contexts/CartContext';
+import { AppointmentsProvider } from './contexts/AppointmentsContext';
 
 function MainApp() {
   const [activeTab, setActiveTab] = useState('home');
@@ -67,9 +68,11 @@ export default function App() {
   return (
     <NavigationProvider>
       <CartProvider>
-        <ReminderProvider>
-          <MainApp />
-        </ReminderProvider>
+        <AppointmentsProvider>
+          <ReminderProvider>
+            <MainApp />
+          </ReminderProvider>
+        </AppointmentsProvider>
       </CartProvider>
     </NavigationProvider>
   );
