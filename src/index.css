@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Syne", sans-serif;
+  --font-body: "DM Sans", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --color-bg-base: #0A0A0F;
+  --color-bg-surface: #13131A;
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #8B8FA8;
+  --color-teal-accent: #00D4AA;
+  --color-purple-accent: #6C63FF;
+  --color-wellness-bg: #080F0C;
+}
+
+@layer utilities {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  .bg-primary-gradient {
+    background: linear-gradient(135deg, #6C63FF, #00D4AA);
+  }
+  
+  .bg-secondary-gradient {
+    background: linear-gradient(135deg, #FF6B9D, #FF9F7F);
+  }
+
+  .bg-wellness-gradient {
+    background: linear-gradient(135deg, #00C9A7, #A8FF78);
+  }
+
+  .bg-amber-gradient {
+    background: linear-gradient(135deg, #FFB347, #FF6B6B);
+  }
+
+  .text-primary-gradient {
+    background: linear-gradient(135deg, #6C63FF, #00D4AA);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .text-wellness-gradient {
+    background: linear-gradient(135deg, #00C9A7, #A8FF78);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
