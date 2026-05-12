@@ -102,6 +102,12 @@ export default function RecordsScreen() {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [sharedItemId, setSharedItemId] = useState<number | null>(null);
 
+  const [showAddRecord, setShowAddRecord] = useState(false);
+  const [addRecordType, setAddRecordType] = useState<'lab' | 'prescription' | 'vitals' | 'other'>('lab');
+  const [addRecordDate, setAddRecordDate] = useState('');
+  const [addRecordNotes, setAddRecordNotes] = useState('');
+  const [addRecordFile, setAddRecordFile] = useState<string | null>(null);
+
   const currentTimeline = timelineData[activeMember] || [];
   const currentSummary = summaryData[activeMember];
 
@@ -131,6 +137,34 @@ export default function RecordsScreen() {
     }
     setSharedItemId(item.id);
     setTimeout(() => setSharedItemId(null), 2000);
+  };
+
+  const handleSaveRecord = () => {
+    const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const typeConfig = {
+      lab:          { title: 'Lab Report Added',    color: 'from-[#6C63FF] to-[#00D4AA]',  icon: Beaker,   type: 'lab' },
+      prescription: { title: 'Prescription Added',  color: 'from-[#FFB347] to-[#FF6B6B]',  icon: FileText, type: 'prescription' },
+      vitals:       { title: 'Vitals Logged',        color: 'from-[#00D4AA] to-[#008A70]',  icon: Activity, type: 'vitals' },
+      other:        { title: 'Record Added',         color: 'from-[#FF6B9D] to-[#9D4DFF]',  icon: FileText, type: 'lab' },
+    };
+    const cfg = typeConfig[addRecordType];
+    const newRecord: any = {
+      id: Date.now(),
+      date: addRecordDate || today,
+      type: cfg.type,
+      title: cfg.title,
+      color: cfg.color,
+      icon: cfg.icon,
+      notes: addRecordNotes,
+    };
+    if (addRecordType === 'prescription') newRecord.doctor = 'Manual Entry';
+    if (addRecordType === 'lab') { newRecord.value = '—'; newRecord.status = addRecordNotes || 'Pending'; }
+    setTimelineData(prev => ({ ...prev, [activeMember]: [newRecord, ...(prev[activeMember] || [])] }));
+    setShowAddRecord(false);
+    setAddRecordType('lab');
+    setAddRecordDate('');
+    setAddRecordNotes('');
+    setAddRecordFile(null);
   };
 
   const handleAddMember = () => {
@@ -164,9 +198,17 @@ export default function RecordsScreen() {
       animate={{ opacity: 1 }}
       className="px-4 py-6 space-y-6 pb-32"
     >
-      <header>
-        <h1 className="font-display text-3xl font-bold">Health Timeline 📋</h1>
-        <p className="text-[#8B8FA8] mt-1">Medical history for you and your family.</p>
+      <header className="flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-3xl font-bold">Health Timeline 📋</h1>
+          <p className="text-[#8B8FA8] mt-1">Medical history for you and your family.</p>
+        </div>
+        <button
+          onClick={() => setShowAddRecord(true)}
+          className="w-10 h-10 rounded-full bg-[#6C63FF]/20 flex items-center justify-center text-[#6C63FF] shrink-0"
+        >
+          <Plus size={20} />
+        </button>
       </header>
 
       {/* Family Member Selector */}
@@ -400,6 +442,90 @@ export default function RecordsScreen() {
           ))
         )}
       </div>
+
+      {/* Add Record Sheet */}
+      <AnimatePresence>
+        {showAddRecord && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowAddRecord(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            />
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed bottom-0 left-0 right-0 bg-[#13131A] rounded-t-3xl z-50 p-6 max-w-[390px] mx-auto border-t border-white/10"
+            >
+              <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6" />
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="font-display text-2xl font-bold">Add Record</h2>
+                <button onClick={() => setShowAddRecord(false)} className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center">
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Record Type */}
+              <p className="text-xs font-bold uppercase tracking-wider text-[#8B8FA8] mb-3">Record Type</p>
+              <div className="grid grid-cols-4 gap-2 mb-5">
+                {([
+                  { id: 'lab',          label: 'Lab',    color: 'text-[#6C63FF]', activeBg: 'bg-[#6C63FF]/20 border-[#6C63FF]' },
+                  { id: 'prescription', label: 'Rx',     color: 'text-[#FFB347]', activeBg: 'bg-[#FFB347]/20 border-[#FFB347]' },
+                  { id: 'vitals',       label: 'Vitals', color: 'text-[#00D4AA]', activeBg: 'bg-[#00D4AA]/20 border-[#00D4AA]' },
+                  { id: 'other',        label: 'Other',  color: 'text-[#FF6B9D]', activeBg: 'bg-[#FF6B9D]/20 border-[#FF6B9D]' },
+                ] as const).map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => setAddRecordType(t.id)}
+                    className={`py-2.5 rounded-xl text-sm font-bold border transition-all ${addRecordType === t.id ? `${t.activeBg} ${t.color}` : 'bg-white/5 border-white/10 text-[#8B8FA8]'}`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Date */}
+              <p className="text-xs font-bold uppercase tracking-wider text-[#8B8FA8] mb-2">Date</p>
+              <input
+                type="date"
+                value={addRecordDate}
+                onChange={e => setAddRecordDate(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white text-sm mb-4 focus:outline-none focus:border-[#6C63FF]/50 [color-scheme:dark]"
+              />
+
+              {/* Notes */}
+              <p className="text-xs font-bold uppercase tracking-wider text-[#8B8FA8] mb-2">Notes</p>
+              <textarea
+                value={addRecordNotes}
+                onChange={e => setAddRecordNotes(e.target.value)}
+                placeholder="e.g. Blood pressure normal, prescribed Amlodipine 5mg..."
+                rows={3}
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white text-sm placeholder-[#8B8FA8] resize-none focus:outline-none focus:border-[#6C63FF]/50 mb-4"
+              />
+
+              {/* File Upload */}
+              <button
+                onClick={() => setAddRecordFile(prev => prev ? null : 'document.pdf')}
+                className={`w-full rounded-xl py-3 px-4 text-sm font-bold flex items-center justify-center gap-2 mb-6 border transition-all ${addRecordFile ? 'bg-[#00D4AA]/10 border-[#00D4AA] text-[#00D4AA]' : 'bg-white/5 border-white/10 text-[#8B8FA8]'}`}
+              >
+                <Upload size={16} />
+                {addRecordFile ? `Attached: ${addRecordFile}` : 'Attach File (PDF / Image)'}
+              </button>
+
+              <button
+                onClick={handleSaveRecord}
+                className="w-full h-14 rounded-full bg-primary-gradient text-white font-bold text-lg shadow-[0_8px_32px_rgba(108,99,255,0.3)]"
+              >
+                Save Record
+              </button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Add Member Modal */}
       <AnimatePresence>

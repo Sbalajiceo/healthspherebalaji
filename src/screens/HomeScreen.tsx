@@ -10,9 +10,14 @@ import MedicineDetailScreen from './MedicineDetailScreen';
 import SymptomCheckerScreen from './SymptomCheckerScreen';
 import MedicalScribeScreen from './MedicalScribeScreen';
 import AppointmentsScreen from './AppointmentsScreen';
+import WaitingRoomScreen from './WaitingRoomScreen';
+import ChatScreen from './ChatScreen';
+import { useAppointments } from '../contexts/AppointmentsContext';
 
 export default function HomeScreen({ setActiveTab }: { setActiveTab: (tab: string) => void }) {
   const { pushScreen } = useNavigation();
+  const { appointments } = useAppointments();
+  const nextAppointment = appointments.find(a => a.status === 'upcoming');
 
   return (
     <motion.div 
@@ -228,35 +233,53 @@ export default function HomeScreen({ setActiveTab }: { setActiveTab: (tab: strin
       </motion.div>
 
       {/* Upcoming Appointment */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-      >
-        <h3 className="font-display text-lg font-bold mb-3">Upcoming</h3>
-        <div className="glass-card p-0 overflow-hidden relative">
-          <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary-gradient" />
-          <div className="p-5">
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex items-center">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#6C63FF] to-[#FF6B9D] flex items-center justify-center text-lg font-bold font-display mr-3">
-                  P
+      {nextAppointment && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <h3 className="font-display text-lg font-bold mb-3">Upcoming</h3>
+          <div className="glass-card p-0 overflow-hidden relative">
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary-gradient" />
+            <div className="p-5">
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center">
+                  <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${nextAppointment.doctorColor || 'from-[#6C63FF] to-[#00D4AA]'} flex items-center justify-center text-lg font-bold font-display mr-3`}>
+                    {nextAppointment.doctorInitials}
+                  </div>
+                  <div>
+                    <h4 className="font-bold">{nextAppointment.doctorName}</h4>
+                    <p className="text-xs text-[#8B8FA8]">{nextAppointment.doctorSpec}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-bold">Dr. Priya Sharma</h4>
-                  <p className="text-xs text-[#8B8FA8]">Cardiologist • JS Global Hospital</p>
+                <div className="bg-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold px-2 py-1 rounded-md flex items-center">
+                  <Calendar size={12} className="mr-1" /> {nextAppointment.selectedDate}, {nextAppointment.selectedTime}
                 </div>
               </div>
-              <div className="bg-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold px-2 py-1 rounded-md flex items-center">
-                <Calendar size={12} className="mr-1" /> Today, 4:30 PM
-              </div>
+              <button
+                onClick={() => {
+                  const doctor = {
+                    name: nextAppointment.doctorName,
+                    spec: nextAppointment.doctorSpec,
+                    initials: nextAppointment.doctorInitials,
+                    color: nextAppointment.doctorColor,
+                  };
+                  const type = nextAppointment.selectedType?.toLowerCase();
+                  if (type === 'chat') {
+                    pushScreen({ id: 'chat-apt', component: <ChatScreen doctor={doctor} /> });
+                  } else {
+                    pushScreen({ id: 'waiting-apt', component: <WaitingRoomScreen doctor={doctor} /> });
+                  }
+                }}
+                className="w-full bg-primary-gradient rounded-full py-3 font-bold text-sm shadow-[0_4px_24px_rgba(108,99,255,0.4)] hover:scale-[1.02] transition-transform"
+              >
+                {nextAppointment.selectedType?.toLowerCase() === 'chat' ? 'Go to Chat' : 'Join Video Consult'}
+              </button>
             </div>
-            <button className="w-full bg-primary-gradient rounded-full py-3 font-bold text-sm shadow-[0_4px_24px_rgba(108,99,255,0.4)] hover:scale-[1.02] transition-transform">
-              Join Video Consult
-            </button>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      )}
     </motion.div>
   );
 }

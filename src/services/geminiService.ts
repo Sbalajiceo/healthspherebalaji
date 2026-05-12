@@ -209,6 +209,38 @@ export async function findGenericAlternatives(medicineQuery: string) {
   }
 }
 
+export async function generateDoctorReply(
+  userMessage: string,
+  doctor: { name: string; spec: string },
+  history: Array<{ role: string; text: string }>
+) {
+  try {
+    const historyText = history.length > 0
+      ? `Previous conversation:\n${history.map(m => `${m.role === 'user' ? 'Patient (Sandeep)' : doctor.name}: ${m.text}`).join('\n')}\n\n`
+      : '';
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: `${historyText}Patient (Sandeep) says: "${userMessage}"`,
+      config: {
+        systemInstruction: `You are ${doctor.name}, a ${doctor.spec} on HealthSphere — an Indian healthcare app. You are in a live text chat consultation with your patient Sandeep. Respond warmly and professionally, like a real doctor texting a patient. Keep replies brief (1–3 sentences max). Ask follow-up questions when relevant. Never break character. ${SYSTEM_INSTRUCTION}`,
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            reply: { type: Type.STRING, description: "The doctor's reply — brief, warm, professional, 1-3 sentences" }
+          },
+          required: ['reply']
+        }
+      }
+    });
+    return JSON.parse(response.text || '{}').reply;
+  } catch (error) {
+    console.error('Doctor reply error:', error);
+    return null;
+  }
+}
+
 export async function generateMedicalNote(transcript: string) {
   try {
     const response = await ai.models.generateContent({
