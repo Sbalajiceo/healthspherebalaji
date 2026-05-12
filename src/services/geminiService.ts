@@ -7,7 +7,7 @@ const SYSTEM_INSTRUCTION = `You are the AI brain powering HealthSphere — India
 export async function generateTriage(symptoms: string) {
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-2.5-flash',
       contents: `Analyze these symptoms: "${symptoms}". Provide triage information.`,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -46,7 +46,7 @@ export async function generateHealthSummary(records: any[], context?: string) {
       : `Generate a health summary based on these timeline records: ${JSON.stringify(records)}`;
       
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -79,7 +79,7 @@ export async function generateHealthSummary(records: any[], context?: string) {
 export async function generateWellnessPlan(answers: any) {
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-2.5-flash',
       contents: `Generate a wellness plan based on these user answers: ${JSON.stringify(answers)}`,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -111,7 +111,7 @@ export async function generateWellnessPlan(answers: any) {
 export async function generateCategoryPlan(category: string, answers: any) {
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-2.5-flash',
       contents: `Generate a highly personalized, Hims/Hers style healthcare plan for the category "${category}" based on these user answers: ${JSON.stringify(answers)}. Make it sound premium, science-backed, and tailored to their specific needs.`,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -167,7 +167,7 @@ export async function generateCategoryPlan(category: string, answers: any) {
 export async function findGenericAlternatives(medicineQuery: string) {
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-2.5-flash',
       contents: `Find generic alternatives for: "${medicineQuery}". Use realistic Indian medicine names and ₹ prices.`,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,

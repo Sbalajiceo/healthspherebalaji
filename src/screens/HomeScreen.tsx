@@ -20,7 +20,7 @@ export default function HomeScreen({ setActiveTab }: { setActiveTab: (tab: strin
       {/* Header */}
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold">Good morning, Rahul 👋</h1>
+          <h1 className="font-display text-2xl font-bold">Good morning, Sandeep 👋</h1>
           <p className="text-[#8B8FA8] text-sm mt-1">Ready to crush your goals today?</p>
         </div>
         <button 
@@ -29,7 +29,7 @@ export default function HomeScreen({ setActiveTab }: { setActiveTab: (tab: strin
         >
           <div className="w-full h-full rounded-full bg-[#13131A] flex items-center justify-center overflow-hidden">
             <img 
-              src="https://picsum.photos/seed/rahul/100/100" 
+              src="https://picsum.photos/seed/sandeep/100/100"
               alt="Profile" 
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"
@@ -40,7 +40,7 @@ export default function HomeScreen({ setActiveTab }: { setActiveTab: (tab: strin
 
       {/* Hero Health Score */}
       <motion.div 
-        onClick={() => pushScreen({ id: 'health-score', component: <HealthScoreScreen member={FAMILY_MEMBERS.find(m => m.name === 'Rahul')} /> })}
+        onClick={() => pushScreen({ id: 'health-score', component: <HealthScoreScreen member={FAMILY_MEMBERS.find(m => m.name === 'Sandeep')} /> })}
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         whileHover={{ scale: 1.02, boxShadow: "0 8px 32px rgba(108,99,255,0.15)" }}
@@ -136,7 +136,7 @@ export default function HomeScreen({ setActiveTab }: { setActiveTab: (tab: strin
             onClick={() => {
               if (action.isScreen) {
                 if (action.id === 'health-score') {
-                  pushScreen({ id: 'health-score', component: <HealthScoreScreen member={FAMILY_MEMBERS.find(m => m.name === 'Rahul')} /> });
+                  pushScreen({ id: 'health-score', component: <HealthScoreScreen member={FAMILY_MEMBERS.find(m => m.name === 'Sandeep')} /> });
                 } else if (action.id === 'reminders') {
                   pushScreen({ id: 'reminders', component: <MedicationReminderScreen /> });
                 }

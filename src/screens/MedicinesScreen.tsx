@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'motion/react';
 import { Bell, Upload, Plus, Search, ShoppingCart, ChevronRight, Activity, Heart, Thermometer, Pill } from 'lucide-react';
 import { useNavigation } from '../contexts/NavigationContext';
+import { useCart } from '../contexts/CartContext';
 import MedicineDetailScreen from './MedicineDetailScreen';
 import CartScreen from './CartScreen';
 
@@ -97,6 +98,7 @@ const MOCK_AI_REC = [
 
 export default function MedicinesScreen() {
   const { pushScreen } = useNavigation();
+  const { addItem, totalItems } = useCart();
 
   const openMedicineDetail = (medicine: any) => {
     pushScreen({
@@ -112,19 +114,31 @@ export default function MedicinesScreen() {
     });
   };
 
+  const quickAdd = (med: any) => {
+    addItem({
+      id: med.id,
+      name: med.brand_name,
+      salt: med.salt_name,
+      price: med.brand_price_inr,
+      image: med.image ?? '',
+    });
+    openCart();
+  };
+
   return (
     <div className="min-h-screen bg-[#111512] text-white pb-32 font-sans">
       {/* Header */}
       <div className="px-5 pt-12 pb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <img 
-            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop" 
-            alt="Profile" 
+          <img
+            src="https://picsum.photos/seed/sandeep/100/100"
+            alt="Profile"
             className="w-12 h-12 rounded-full object-cover border-2 border-white/10"
+            referrerPolicy="no-referrer"
           />
           <div>
-            <h1 className="font-bold text-lg leading-tight">Bocchi The Rock</h1>
-            <p className="text-[#9CA3AF] text-xs mt-0.5">13 Prescriptions • 85% Score</p>
+            <h1 className="font-bold text-lg leading-tight">Sandeep</h1>
+            <p className="text-[#9CA3AF] text-xs mt-0.5">13 Prescriptions • 78% Score</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -136,9 +150,11 @@ export default function MedicinesScreen() {
           </button>
           <button onClick={openCart} className="w-12 h-12 rounded-full bg-[#1A201D] flex items-center justify-center relative">
             <ShoppingCart size={20} className="text-white" />
-            <span className="absolute top-2 right-2 w-4 h-4 bg-[#84CC16] rounded-full flex items-center justify-center text-[10px] font-bold text-[#111512] border-2 border-[#1A201D]">
-              2
-            </span>
+            {totalItems > 0 && (
+              <span className="absolute top-2 right-2 w-4 h-4 bg-[#84CC16] rounded-full flex items-center justify-center text-[10px] font-bold text-[#111512] border-2 border-[#1A201D]">
+                {totalItems}
+              </span>
+            )}
           </button>
         </div>
       </div>
@@ -211,8 +227,8 @@ export default function MedicinesScreen() {
               <h3 className="font-bold text-sm leading-tight mb-3 line-clamp-2 h-10">{med.brand_name}</h3>
               <div className="flex items-center justify-between">
                 <span className="font-bold text-lg">{med.price_display}</span>
-                <button 
-                  onClick={(e) => { e.stopPropagation(); openCart(); }}
+                <button
+                  onClick={(e) => { e.stopPropagation(); quickAdd(med); }}
                   className="w-8 h-8 rounded-full bg-[#84CC16] flex items-center justify-center text-[#111512]"
                 >
                   <Plus size={20} />
@@ -250,8 +266,8 @@ export default function MedicinesScreen() {
                   <span className="font-bold text-lg">{med.price_display}</span>
                 </div>
                 <p className="text-[#9CA3AF] text-xs mb-3">{med.subtitle}</p>
-                <button 
-                  onClick={(e) => { e.stopPropagation(); openCart(); }}
+                <button
+                  onClick={(e) => { e.stopPropagation(); quickAdd(med); }}
                   className="w-full h-10 rounded-xl bg-[#84CC16]/10 text-[#84CC16] font-bold text-sm flex items-center justify-center border border-[#84CC16]/20"
                 >
                   Add to Cart

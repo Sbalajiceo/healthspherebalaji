@@ -10,7 +10,7 @@ export default function HealthScoreScreen({ member }: { member?: any }) {
   const [activeVitalTab, setActiveVitalTab] = useState<'hr' | 'bp' | 'spo2' | 'sugar'>('hr');
   const maxWater = 2500;
 
-  const defaultMember = { name: 'Rahul', score: 78, color: 'from-[#0A8B8B] to-[#02C39A]' };
+  const defaultMember = { name: 'Sandeep', score: 78, color: 'from-[#0A8B8B] to-[#02C39A]' };
   const activeMember = member || defaultMember;
   const color1 = activeMember.color.split(' ')[0].replace('from-[', '').replace(']', '');
   const color2 = activeMember.color.split(' ')[1].replace('to-[', '').replace(']', '');

@@ -4,9 +4,9 @@ import { Sparkles, Activity, FileText, Beaker, ChevronDown, Plus, X, Upload, Sha
 import { generateHealthSummary } from '../services/geminiService';
 
 const INITIAL_FAMILY_MEMBERS = [
-  { id: 'me', name: 'Rahul', relation: 'Me', initials: 'RV', color: 'from-[#6C63FF] to-[#00D4AA]' },
-  { id: 'mom', name: 'Sunita', relation: 'Mother', initials: 'SV', color: 'from-[#FF6B9D] to-[#FF9F7F]' },
-  { id: 'dad', name: 'Rajesh', relation: 'Father', initials: 'RV', color: 'from-[#00C9A7] to-[#A8FF78]' },
+  { id: 'me', name: 'Sandeep', relation: 'Me', initials: 'SB', color: 'from-[#6C63FF] to-[#00D4AA]' },
+  { id: 'sneha', name: 'Sneha', relation: 'Spouse', initials: 'SN', color: 'from-[#FF6B9D] to-[#FF9F7F]' },
+  { id: 'kamla', name: 'Kamla', relation: 'Mother', initials: 'KA', color: 'from-[#00C9A7] to-[#A8FF78]' },
 ];
 
 const INITIAL_TIMELINE_DATA: Record<string, any[]> = {
@@ -40,13 +40,13 @@ const INITIAL_TIMELINE_DATA: Record<string, any[]> = {
       icon: Beaker
     }
   ],
-  mom: [
+  sneha: [
     {
       id: 4,
       date: '18 Mar 2026',
       type: 'vitals',
       title: 'Vitals Logged',
-      data: { bp: '140/90', hr: '68', weight: '65kg', sugar: '110 mg/dL' },
+      data: { bp: '118/76', hr: '70', weight: '58kg', sugar: '92 mg/dL' },
       color: 'from-[#00D4AA] to-[#008A70]',
       icon: Activity
     },
@@ -55,12 +55,12 @@ const INITIAL_TIMELINE_DATA: Record<string, any[]> = {
       date: '12 Mar 2026',
       type: 'prescription',
       title: 'Prescription Added',
-      doctor: 'Dr. Arjun Reddy',
+      doctor: 'Dr. Meena Iyer',
       color: 'from-[#FFB347] to-[#FF6B6B]',
       icon: FileText
     }
   ],
-  dad: [
+  kamla: [
     {
       id: 6,
       date: '15 Mar 2026',
@@ -70,6 +70,15 @@ const INITIAL_TIMELINE_DATA: Record<string, any[]> = {
       status: 'High Cholesterol',
       color: 'from-[#6C63FF] to-[#00D4AA]',
       icon: Beaker
+    },
+    {
+      id: 7,
+      date: '08 Mar 2026',
+      type: 'vitals',
+      title: 'Vitals Logged',
+      data: { bp: '145/92', hr: '74', weight: '62kg', sugar: '118 mg/dL' },
+      color: 'from-[#00D4AA] to-[#008A70]',
+      icon: Activity
     }
   ]
 };

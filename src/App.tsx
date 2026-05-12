@@ -13,6 +13,7 @@ import RecordsScreen from './screens/RecordsScreen';
 import WellnessScreen from './screens/WellnessScreen';
 import { NavigationProvider, useNavigation } from './contexts/NavigationContext';
 import { ReminderProvider } from './contexts/ReminderContext';
+import { CartProvider } from './contexts/CartContext';
 
 function MainApp() {
   const [activeTab, setActiveTab] = useState('home');
@@ -65,9 +66,11 @@ function MainApp() {
 export default function App() {
   return (
     <NavigationProvider>
-      <ReminderProvider>
-        <MainApp />
-      </ReminderProvider>
+      <CartProvider>
+        <ReminderProvider>
+          <MainApp />
+        </ReminderProvider>
+      </CartProvider>
     </NavigationProvider>
   );
 }

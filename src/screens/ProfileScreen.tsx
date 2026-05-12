@@ -36,15 +36,15 @@ export default function ProfileScreen() {
         <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#6C63FF] to-[#00D4AA] p-1 mb-4 shadow-[0_0_30px_rgba(108,99,255,0.3)]">
           <div className="w-full h-full rounded-full bg-[#13131A] flex items-center justify-center overflow-hidden">
             <img 
-              src="https://picsum.photos/seed/rahul/200/200" 
+              src="https://picsum.photos/seed/sandeep/200/200"
               alt="Profile" 
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"
             />
           </div>
         </div>
-        <h1 className="font-display text-2xl font-bold">Rahul Verma</h1>
-        <p className="text-[#8B8FA8] text-sm mt-1">32 yrs • Male • O+</p>
+        <h1 className="font-display text-2xl font-bold">Sandeep Balaji</h1>
+        <p className="text-[#8B8FA8] text-sm mt-1">26 yrs • Male • O+</p>
       </header>
 
       {/* Health Score Widget */}
@@ -55,12 +55,12 @@ export default function ProfileScreen() {
             <Activity size={14} className="mr-1 text-[#00D4AA]" /> Health Score
           </div>
           <div className="flex items-baseline">
-            <span className="font-mono text-3xl font-bold text-white">850</span>
-            <span className="text-[#8B8FA8] text-sm ml-1">/1000</span>
+            <span className="font-mono text-3xl font-bold text-white">78</span>
+            <span className="text-[#8B8FA8] text-sm ml-1">/100</span>
           </div>
         </div>
         <div className="bg-[#00D4AA]/20 text-[#00D4AA] px-3 py-1 rounded-full text-xs font-bold border border-[#00D4AA]/30">
-          Excellent
+          Good
         </div>
       </div>
 
