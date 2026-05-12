@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Activity, Calendar, Droplet, HeartPulse, Pill, Stethoscope, Bell, ScanLine, Mic } from 'lucide-react';
+import { Activity, Calendar, Droplet, HeartPulse, Pill, Stethoscope, Bell, ScanLine, Mic, PhoneCall } from 'lucide-react';
 import { useNavigation } from '../contexts/NavigationContext';
 import ProfileScreen from './ProfileScreen';
 import HealthScoreScreen from './HealthScoreScreen';
@@ -14,6 +14,7 @@ import WaitingRoomScreen from './WaitingRoomScreen';
 import ChatScreen from './ChatScreen';
 import { useAppointments } from '../contexts/AppointmentsContext';
 import LabBookingScreen from './LabBookingScreen';
+import EmergencySOSScreen from './EmergencySOSScreen';
 
 export default function HomeScreen({ setActiveTab }: { setActiveTab: (tab: string) => void }) {
   const { pushScreen } = useNavigation();
@@ -32,19 +33,27 @@ export default function HomeScreen({ setActiveTab }: { setActiveTab: (tab: strin
           <h1 className="font-display text-2xl font-bold">Good morning, Sandeep 👋</h1>
           <p className="text-[#8B8FA8] text-sm mt-1">Ready to crush your goals today?</p>
         </div>
-        <button 
-          onClick={() => pushScreen({ id: 'profile', component: <ProfileScreen /> })}
-          className="w-12 h-12 rounded-full bg-primary-gradient p-[2px] transition-transform hover:scale-105"
-        >
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => pushScreen({ id: 'emergency-sos', component: <EmergencySOSScreen /> })}
+            className="flex items-center gap-1.5 px-3 h-9 rounded-full bg-[#FF2020]/20 border border-[#FF2020]/40 text-[#FF4B4B] text-xs font-bold uppercase tracking-wider"
+          >
+            <PhoneCall size={13} /> SOS
+          </button>
+          <button
+            onClick={() => pushScreen({ id: 'profile', component: <ProfileScreen /> })}
+            className="w-12 h-12 rounded-full bg-primary-gradient p-[2px] transition-transform hover:scale-105"
+          >
           <div className="w-full h-full rounded-full bg-[#13131A] flex items-center justify-center overflow-hidden">
-            <img 
+            <img
               src="https://picsum.photos/seed/sandeep/100/100"
-              alt="Profile" 
+              alt="Profile"
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"
             />
           </div>
-        </button>
+          </button>
+        </div>
       </header>
 
       {/* Hero Health Score */}

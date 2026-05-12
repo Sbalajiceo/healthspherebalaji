@@ -25,7 +25,24 @@ export function AppointmentsProvider({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     const saved = localStorage.getItem('appointments');
-    if (saved) setAppointments(JSON.parse(saved));
+    if (saved !== null) {
+      setAppointments(JSON.parse(saved));
+    } else {
+      const seed: Appointment[] = [{
+        id: 'seed-1',
+        doctorName: 'Dr. Priya Sharma',
+        doctorSpec: 'Cardiologist',
+        doctorInitials: 'P',
+        doctorColor: 'from-[#6C63FF] to-[#FF6B9D]',
+        selectedDate: 'Tomorrow',
+        selectedTime: '04:30 PM',
+        selectedType: 'video',
+        bookedAt: new Date().toISOString(),
+        status: 'upcoming',
+      }];
+      setAppointments(seed);
+      localStorage.setItem('appointments', JSON.stringify(seed));
+    }
   }, []);
 
   const addAppointment = (apt: Omit<Appointment, 'id' | 'bookedAt' | 'status'>) => {

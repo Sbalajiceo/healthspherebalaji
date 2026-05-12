@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, Settings, Pill, Calendar, ChevronDown, Plus, CornerDownLeft, CornerDownRight, Camera, Loader2 } from 'lucide-react';
 import { useNavigation } from '../contexts/NavigationContext';
@@ -18,9 +18,16 @@ const APPEARANCES = [
   { id: 'drop', icon: <div className="w-4 h-6 rounded-t-full rounded-b-full border-2 border-current" /> },
 ];
 
-export default function AddMedicationScreen({ onAdd }: { onAdd: (med: any) => void }) {
+export default function AddMedicationScreen({ onAdd, autoScan }: { onAdd: (med: any) => void; autoScan?: boolean }) {
   const { popScreen } = useNavigation();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (autoScan) {
+      const t = setTimeout(() => fileInputRef.current?.click(), 300);
+      return () => clearTimeout(t);
+    }
+  }, [autoScan]);
   const [isScanning, setIsScanning] = useState(false);
   const [name, setName] = useState('Ashwgandha');
   const [dose, setDose] = useState(500);
