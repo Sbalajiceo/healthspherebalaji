@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { ChevronLeft, CheckCircle2, ShieldCheck, Pill, ShoppingCart, Plus, Minus, MapPin, Clock, Star, Store } from 'lucide-react';
 import { useNavigation } from '../contexts/NavigationContext';
+import { useCart } from '../contexts/CartContext';
 import CartScreen from './CartScreen';
 
 export default function MedicineDetailScreen({ medicine }: { medicine: any }) {
   const { popScreen, pushScreen } = useNavigation();
+  const { addItem, totalItems } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [selectedDosage, setSelectedDosage] = useState('10mg');
   const [selectedPharmacy, setSelectedPharmacy] = useState('p1');
@@ -40,10 +42,14 @@ export default function MedicineDetailScreen({ medicine }: { medicine: any }) {
   const currentSubtitle = isGenericSelected ? 'Generic Alternative' : medicine.salt_name;
 
   const handleAddToCart = () => {
-    pushScreen({
-      id: 'cart',
-      component: <CartScreen />
-    });
+    addItem({
+      id: medicine.id ?? medicine.brand_name,
+      name: currentName,
+      salt: medicine.salt_name,
+      price: currentPrice,
+      image: medicine.image ?? '',
+    }, quantity);
+    pushScreen({ id: 'cart', component: <CartScreen /> });
   };
 
   return (
@@ -58,9 +64,11 @@ export default function MedicineDetailScreen({ medicine }: { medicine: any }) {
         </div>
         <button onClick={handleAddToCart} className="w-10 h-10 rounded-full bg-[#1A201D] flex items-center justify-center relative">
           <ShoppingCart size={20} className="text-white" />
-          <span className={`absolute top-1 right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold text-[#111512] border-2 border-[#1A201D] transition-colors ${isGenericSelected ? 'bg-[#00D4AA]' : 'bg-[#84CC16]'}`}>
-            2
-          </span>
+          {totalItems > 0 && (
+            <span className={`absolute top-1 right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold text-[#111512] border-2 border-[#1A201D] transition-colors ${isGenericSelected ? 'bg-[#00D4AA]' : 'bg-[#84CC16]'}`}>
+              {totalItems}
+            </span>
+          )}
         </button>
       </div>
 

@@ -3,11 +3,9 @@ import { motion } from 'motion/react';
 import { ChevronLeft, Calendar, Clock, Video, Phone, MessageSquare } from 'lucide-react';
 import { useNavigation } from '../contexts/NavigationContext';
 import { useAppointments, Appointment } from '../contexts/AppointmentsContext';
-import ChatScreen from './ChatScreen';
-import WaitingRoomScreen from './WaitingRoomScreen';
 
 export default function AppointmentsScreen() {
-  const { popScreen, pushScreen } = useNavigation();
+  const { popScreen } = useNavigation();
   const { appointments } = useAppointments();
 
   const upcoming = appointments.filter(a => a.status === 'upcoming');
@@ -72,23 +70,6 @@ export default function AppointmentsScreen() {
             <span className="capitalize">{apt.selectedType}</span>
           </div>
         </div>
-
-        {apt.status === 'upcoming' && (
-          <button
-            onClick={() => {
-              const doctor = { name: apt.doctorName, spec: apt.doctorSpec, initials: apt.doctorInitials, color: apt.doctorColor };
-              const type = apt.selectedType?.toLowerCase();
-              if (type === 'chat') {
-                pushScreen({ id: `apt-chat-${apt.id}`, component: <ChatScreen doctor={doctor} /> });
-              } else {
-                pushScreen({ id: `apt-wait-${apt.id}`, component: <WaitingRoomScreen doctor={doctor} /> });
-              }
-            }}
-            className="w-full mt-4 h-11 rounded-xl bg-primary-gradient text-white font-bold text-sm flex items-center justify-center shadow-[0_4px_14px_rgba(108,99,255,0.3)]"
-          >
-            {apt.selectedType?.toLowerCase() === 'chat' ? '💬 Go to Chat' : '📹 Join Consultation'}
-          </button>
-        )}
       </motion.div>
     );
   };

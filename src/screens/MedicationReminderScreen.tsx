@@ -32,11 +32,11 @@ export default function MedicationReminderScreen() {
     });
   };
 
-  const openAddForm = () => {
+  const openAddForm = (autoScan = false) => {
     setShowAddChoice(false);
     pushScreen({
       id: 'add-medication',
-      component: <AddMedicationScreen onAdd={handleAddMedication} />
+      component: <AddMedicationScreen onAdd={handleAddMedication} autoScan={autoScan} />
     });
   };
 
@@ -214,16 +214,16 @@ export default function MedicationReminderScreen() {
               </p>
               
               <div className="space-y-4 mb-8">
-                <button className="w-full glass-card rounded-2xl p-5 border border-white/5 flex flex-col items-start text-left hover:bg-white/5 transition-colors">
-                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center mb-3">
-                    <ScanLine size={20} className="text-[#8B8FA8]" />
+                <button onClick={() => openAddForm(true)} className="w-full glass-card rounded-2xl p-5 border border-white/5 flex flex-col items-start text-left hover:bg-white/5 transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-[#6C63FF]/20 flex items-center justify-center mb-3">
+                    <ScanLine size={20} className="text-[#6C63FF]" />
                   </div>
                   <h3 className="font-bold text-lg mb-1">Scan with AI</h3>
                   <p className="text-[#8B8FA8] text-sm">Setup medication/supplements based on our AI Scan, intuitively.</p>
                 </button>
-                
-                <button 
-                  onClick={openAddForm}
+
+                <button
+                  onClick={() => openAddForm(false)}
                   className="w-full glass-card rounded-2xl p-5 border border-[#00D4AA]/50 flex flex-col items-start text-left relative overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-[#00D4AA]/5" />

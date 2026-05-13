@@ -11,8 +11,12 @@ import ConsultScreen from './screens/ConsultScreen';
 import MedicinesScreen from './screens/MedicinesScreen';
 import RecordsScreen from './screens/RecordsScreen';
 import WellnessScreen from './screens/WellnessScreen';
+import OnboardingScreen from './screens/OnboardingScreen';
 import { NavigationProvider, useNavigation } from './contexts/NavigationContext';
 import { ReminderProvider } from './contexts/ReminderContext';
+import { CartProvider } from './contexts/CartContext';
+import { AppointmentsProvider } from './contexts/AppointmentsContext';
+import { OrdersProvider } from './contexts/OrdersContext';
 
 function MainApp() {
   const [activeTab, setActiveTab] = useState('home');
@@ -62,12 +66,28 @@ function MainApp() {
   );
 }
 
+function AppRoot() {
+  const [onboarded, setOnboarded] = useState(() => !!localStorage.getItem('hs_onboarded'));
+
+  if (!onboarded) {
+    return <OnboardingScreen onComplete={() => setOnboarded(true)} />;
+  }
+
+  return <MainApp />;
+}
+
 export default function App() {
   return (
     <NavigationProvider>
-      <ReminderProvider>
-        <MainApp />
-      </ReminderProvider>
+      <CartProvider>
+        <OrdersProvider>
+        <AppointmentsProvider>
+          <ReminderProvider>
+            <AppRoot />
+          </ReminderProvider>
+        </AppointmentsProvider>
+        </OrdersProvider>
+      </CartProvider>
     </NavigationProvider>
   );
 }

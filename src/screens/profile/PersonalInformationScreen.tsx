@@ -24,9 +24,9 @@ export default function PersonalInformationScreen() {
         <div className="flex flex-col items-center mb-8">
           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#6C63FF] to-[#00D4AA] p-1 mb-4 relative">
             <div className="w-full h-full rounded-full bg-[#13131A] flex items-center justify-center overflow-hidden">
-              <img 
-                src="https://picsum.photos/seed/rahul/200/200" 
-                alt="Profile" 
+              <img
+                src="https://picsum.photos/seed/sandeep/200/200"
+                alt="Profile"
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
               />
@@ -43,7 +43,7 @@ export default function PersonalInformationScreen() {
               <User size={16} className="text-[#8B8FA8] mr-2" />
               <span className="text-sm font-bold text-[#8B8FA8] uppercase tracking-wider">Full Name</span>
             </div>
-            <div className="text-lg font-bold ml-6">Rahul Verma</div>
+            <div className="text-lg font-bold ml-6">Sandeep Balaji</div>
           </div>
 
           <div className="glass-card p-4 rounded-2xl border border-white/5">
@@ -51,7 +51,7 @@ export default function PersonalInformationScreen() {
               <Mail size={16} className="text-[#8B8FA8] mr-2" />
               <span className="text-sm font-bold text-[#8B8FA8] uppercase tracking-wider">Email</span>
             </div>
-            <div className="text-lg font-bold ml-6">rahul.verma@example.com</div>
+            <div className="text-lg font-bold ml-6">sandeepbalajisenthilkumar@gmail.com</div>
           </div>
 
           <div className="glass-card p-4 rounded-2xl border border-white/5">

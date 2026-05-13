@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, Star, Video, Phone, MessageSquare, Calendar, Clock, CheckCircle2, MapPin, CreditCard, Wallet, Building2, ArrowRight } from 'lucide-react';
 import { useNavigation } from '../contexts/NavigationContext';
+import { useAppointments } from '../contexts/AppointmentsContext';
 import ChatScreen from './ChatScreen';
 import WaitingRoomScreen from './WaitingRoomScreen';
 
 export default function DoctorProfileScreen({ doctor, consultType }: { doctor: any, consultType?: string }) {
   const { pushScreen, popScreen } = useNavigation();
+  const { addAppointment } = useAppointments();
   const [showBooking, setShowBooking] = useState(false);
   const [bookingStep, setBookingStep] = useState(consultType === 'PHYSICAL' ? 2 : 1);
   const [selectedType, setSelectedType] = useState(consultType === 'PHYSICAL' ? 'Physical' : '');
@@ -15,14 +17,20 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
   const [selectedPayment, setSelectedPayment] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const PRICE_MAP: Record<string, number> = { video: 500, audio: 300, chat: 200, physical: 500 };
-  const consultPrice = PRICE_MAP[selectedType?.toLowerCase()] ?? 500;
-
   const handleBook = () => {
-    setBookingStep(3);
+    setBookingStep(3); // Go to payment
   };
 
   const handlePayment = () => {
+    addAppointment({
+      doctorName: doctor.name,
+      doctorSpec: doctor.spec,
+      doctorInitials: doctor.initials,
+      doctorColor: doctor.color,
+      selectedDate,
+      selectedTime,
+      selectedType: selectedType || consultType || 'video',
+    });
     setIsSuccess(true);
   };
 
@@ -221,7 +229,7 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
                         onClick={handleBook}
                         className={`w-full h-14 rounded-full font-bold mt-8 transition-all ${selectedDate && selectedTime ? 'bg-primary-gradient text-white shadow-[0_8px_32px_rgba(108,99,255,0.3)]' : 'bg-white/10 text-[#8B8FA8]'}`}
                       >
-                        Continue to Pay ₹{consultPrice}
+                        Continue to Pay ₹500
                       </button>
                     </div>
                   )}
@@ -265,7 +273,7 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
                         onClick={handlePayment}
                         className={`w-full h-14 rounded-full font-bold mt-8 transition-all flex items-center justify-center ${selectedPayment ? 'bg-[#00D4AA] text-black shadow-[0_8px_32px_rgba(0,212,170,0.3)]' : 'bg-white/10 text-[#8B8FA8]'}`}
                       >
-                        Pay ₹{consultPrice} Securely
+                        Pay ₹500 Securely
                       </button>
                     </div>
                   )}
@@ -287,7 +295,7 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
                     <CheckCircle2 size={48} className="text-[#00D4AA] relative z-10" />
                   </motion.div>
                   <h2 className="font-display text-3xl font-bold mb-2 text-white">Booking Confirmed!</h2>
-                  <p className="text-[#8B8FA8] mb-6 px-4">Your {selectedType} consultation with {doctor.name} is scheduled for <strong className="text-white">{selectedDate}</strong> at <strong className="text-white">{selectedTime}</strong>. <strong className="text-[#00D4AA]">₹{consultPrice} paid.</strong></p>
+                  <p className="text-[#8B8FA8] mb-6 px-4">Your {selectedType} consultation with {doctor.name} is scheduled for <strong className="text-white">{selectedDate}</strong> at <strong className="text-white">{selectedTime}</strong>.</p>
                   
                   {consultType === 'PHYSICAL' ? (
                     <div className="w-full bg-[#1A1A24] rounded-2xl p-4 mb-6 text-left border border-white/5">

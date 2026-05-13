@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, Pill, Calendar, Plus, CornerDownLeft, CornerDownRight, Camera, Loader2 } from 'lucide-react';
+import { ChevronLeft, Settings, Pill, Calendar, ChevronDown, Plus, CornerDownLeft, CornerDownRight, Camera, Loader2 } from 'lucide-react';
 import { useNavigation } from '../contexts/NavigationContext';
 import { scanPrescription } from '../services/geminiService';
 
@@ -18,9 +18,16 @@ const APPEARANCES = [
   { id: 'drop', icon: <div className="w-4 h-6 rounded-t-full rounded-b-full border-2 border-current" /> },
 ];
 
-export default function AddMedicationScreen({ onAdd }: { onAdd: (med: any) => void }) {
+export default function AddMedicationScreen({ onAdd, autoScan }: { onAdd: (med: any) => void; autoScan?: boolean }) {
   const { popScreen } = useNavigation();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (autoScan) {
+      const t = setTimeout(() => fileInputRef.current?.click(), 300);
+      return () => clearTimeout(t);
+    }
+  }, [autoScan]);
   const [isScanning, setIsScanning] = useState(false);
   const [name, setName] = useState('Ashwgandha');
   const [dose, setDose] = useState(500);
@@ -162,21 +169,19 @@ export default function AddMedicationScreen({ onAdd }: { onAdd: (med: any) => vo
         {/* Dose & Measurement */}
         <div>
           <label className="block text-sm font-bold mb-4 text-[#8B8FA8] uppercase tracking-wider">Dose & Measurement</label>
-          <div className="px-2">
-            <input
-              type="range"
-              min={50}
-              max={1000}
-              step={50}
-              value={dose}
-              onChange={e => setDose(Number(e.target.value))}
-              className="w-full accent-[#00D4AA] h-2 rounded-full cursor-pointer"
-            />
+          <div className="relative h-2 bg-white/5 rounded-full mb-6">
+            <div className="absolute left-0 top-0 bottom-0 w-1/2 bg-gradient-to-r from-[#00D4AA]/20 to-[#00D4AA] rounded-full" />
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-[#00D4AA] rounded-full flex items-center justify-center border-4 border-[#0A0A0F]">
+              <div className="flex gap-0.5">
+                <ChevronLeft size={12} className="text-[#0A0A0F]" />
+                <ChevronLeft size={12} className="text-[#0A0A0F] rotate-180" />
+              </div>
+            </div>
           </div>
-          <div className="flex justify-between text-sm font-bold mt-3 px-1">
-            <span className="text-[#8B8FA8]">50mg</span>
-            <span className="text-[#00D4AA] text-lg">{dose}mg</span>
-            <span className="text-[#8B8FA8]">1000mg</span>
+          <div className="flex justify-between text-sm font-bold text-[#8B8FA8]">
+            <span>400mg</span>
+            <span className="text-white text-lg">500mg</span>
+            <span>600mg</span>
           </div>
         </div>
 
@@ -184,15 +189,12 @@ export default function AddMedicationScreen({ onAdd }: { onAdd: (med: any) => vo
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-bold mb-2 text-[#8B8FA8] uppercase tracking-wider">Duration</label>
-            <div className="glass-card rounded-2xl flex items-center px-4 py-4 border border-white/5">
-              <Calendar size={20} className="text-[#8B8FA8] mr-3 shrink-0" />
-              <input
-                type="text"
-                value={duration}
-                onChange={e => setDuration(e.target.value)}
-                placeholder="e.g. 30 days"
-                className="bg-transparent border-none outline-none flex-1 text-base text-white placeholder:text-white/20"
-              />
+            <div className="glass-card rounded-2xl flex items-center justify-between px-4 py-4 border border-white/5">
+              <div className="flex items-center">
+                <Calendar size={20} className="text-[#8B8FA8] mr-3" />
+                <span className="text-base">{duration}</span>
+              </div>
+              <ChevronDown size={20} className="text-[#8B8FA8]" />
             </div>
           </div>
           <div>
@@ -319,26 +321,22 @@ export default function AddMedicationScreen({ onAdd }: { onAdd: (med: any) => vo
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-bold mb-2 text-[#8B8FA8] uppercase tracking-wider">From</label>
-            <div className="glass-card rounded-2xl flex items-center px-4 py-4 border border-white/5">
-              <Calendar size={18} className="text-[#8B8FA8] mr-2 shrink-0" />
-              <input
-                type="date"
-                value={fromDate}
-                onChange={e => setFromDate(e.target.value)}
-                className="bg-transparent border-none outline-none flex-1 text-sm text-white [color-scheme:dark] min-w-0"
-              />
+            <div className="glass-card rounded-2xl flex items-center justify-between px-4 py-4 border border-white/5">
+              <div className="flex items-center">
+                <Calendar size={18} className="text-[#8B8FA8] mr-2" />
+                <span className="text-sm">{fromDate}</span>
+              </div>
+              <ChevronDown size={18} className="text-[#8B8FA8]" />
             </div>
           </div>
           <div>
             <label className="block text-sm font-bold mb-2 text-[#8B8FA8] uppercase tracking-wider">To</label>
-            <div className="glass-card rounded-2xl flex items-center px-4 py-4 border border-white/5">
-              <Calendar size={18} className="text-[#8B8FA8] mr-2 shrink-0" />
-              <input
-                type="date"
-                value={toDate}
-                onChange={e => setToDate(e.target.value)}
-                className="bg-transparent border-none outline-none flex-1 text-sm text-white [color-scheme:dark] min-w-0"
-              />
+            <div className="glass-card rounded-2xl flex items-center justify-between px-4 py-4 border border-white/5">
+              <div className="flex items-center">
+                <Calendar size={18} className="text-[#8B8FA8] mr-2" />
+                <span className="text-sm">{toDate}</span>
+              </div>
+              <ChevronDown size={18} className="text-[#8B8FA8]" />
             </div>
           </div>
         </div>

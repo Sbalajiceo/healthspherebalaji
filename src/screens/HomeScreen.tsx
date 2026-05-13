@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
-import { Activity, Calendar, Droplet, HeartPulse, Pill, Stethoscope, Bell } from 'lucide-react';
+import { Activity, Calendar, Droplet, HeartPulse, Pill, Stethoscope, Bell, ScanLine, Mic, PhoneCall, Search } from 'lucide-react';
+import GlobalSearchScreen from './GlobalSearchScreen';
 import { useNavigation } from '../contexts/NavigationContext';
 import ProfileScreen from './ProfileScreen';
 import HealthScoreScreen from './HealthScoreScreen';
@@ -7,9 +8,19 @@ import FamilyListScreen, { FAMILY_MEMBERS } from './FamilyListScreen';
 import FamilyMemberScoreScreen from './FamilyMemberScoreScreen';
 import MedicationReminderScreen from './MedicationReminderScreen';
 import MedicineDetailScreen from './MedicineDetailScreen';
+import SymptomCheckerScreen from './SymptomCheckerScreen';
+import MedicalScribeScreen from './MedicalScribeScreen';
+import AppointmentsScreen from './AppointmentsScreen';
+import WaitingRoomScreen from './WaitingRoomScreen';
+import ChatScreen from './ChatScreen';
+import { useAppointments } from '../contexts/AppointmentsContext';
+import LabBookingScreen from './LabBookingScreen';
+import EmergencySOSScreen from './EmergencySOSScreen';
 
 export default function HomeScreen({ setActiveTab }: { setActiveTab: (tab: string) => void }) {
   const { pushScreen } = useNavigation();
+  const { appointments } = useAppointments();
+  const nextAppointment = appointments.find(a => a.status === 'upcoming');
 
   return (
     <motion.div 
@@ -20,27 +31,47 @@ export default function HomeScreen({ setActiveTab }: { setActiveTab: (tab: strin
       {/* Header */}
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold">Good morning, Rahul 👋</h1>
+          <h1 className="font-display text-2xl font-bold">Good morning, Sandeep 👋</h1>
           <p className="text-[#8B8FA8] text-sm mt-1">Ready to crush your goals today?</p>
         </div>
-        <button 
-          onClick={() => pushScreen({ id: 'profile', component: <ProfileScreen /> })}
-          className="w-12 h-12 rounded-full bg-primary-gradient p-[2px] transition-transform hover:scale-105"
-        >
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => pushScreen({ id: 'emergency-sos', component: <EmergencySOSScreen /> })}
+            className="flex items-center gap-1.5 px-3 h-9 rounded-full bg-[#FF2020]/20 border border-[#FF2020]/40 text-[#FF4B4B] text-xs font-bold uppercase tracking-wider"
+          >
+            <PhoneCall size={13} /> SOS
+          </button>
+          <button
+            onClick={() => pushScreen({ id: 'profile', component: <ProfileScreen /> })}
+            className="w-12 h-12 rounded-full bg-primary-gradient p-[2px] transition-transform hover:scale-105"
+          >
           <div className="w-full h-full rounded-full bg-[#13131A] flex items-center justify-center overflow-hidden">
-            <img 
-              src="https://picsum.photos/seed/rahul/100/100" 
-              alt="Profile" 
+            <img
+              src="https://picsum.photos/seed/sandeep/100/100"
+              alt="Profile"
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"
             />
           </div>
-        </button>
+          </button>
+        </div>
       </header>
+
+      {/* Search Bar */}
+      <motion.button
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        onClick={() => pushScreen({ id: 'global-search', component: <GlobalSearchScreen /> })}
+        className="w-full flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-left"
+      >
+        <Search size={18} className="text-[#8B8FA8] shrink-0" />
+        <span className="text-sm text-[#8B8FA8]">Search doctors, medicines, labs...</span>
+      </motion.button>
 
       {/* Hero Health Score */}
       <motion.div 
-        onClick={() => pushScreen({ id: 'health-score', component: <HealthScoreScreen member={FAMILY_MEMBERS.find(m => m.name === 'Rahul')} /> })}
+        onClick={() => pushScreen({ id: 'health-score', component: <HealthScoreScreen member={FAMILY_MEMBERS.find(m => m.name === 'Sandeep')} /> })}
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         whileHover={{ scale: 1.02, boxShadow: "0 8px 32px rgba(108,99,255,0.15)" }}
@@ -126,19 +157,30 @@ export default function HomeScreen({ setActiveTab }: { setActiveTab: (tab: strin
         {[
           { icon: Stethoscope, label: 'Consult', color: 'from-[#6C63FF] to-[#8B8FA8]', delay: 0.3, id: 'consult' },
           { icon: Pill, label: 'Pharmacy', color: 'from-[#00D4AA] to-[#008A70]', delay: 0.35, id: 'medicines' },
-          { icon: Droplet, label: 'Book Lab', color: 'from-[#FF6B9D] to-[#FF9F7F]', delay: 0.4, id: 'records' },
+          { icon: Droplet, label: 'Book Lab', color: 'from-[#FF6B9D] to-[#FF9F7F]', delay: 0.4, id: 'book-lab', isScreen: true },
           { icon: HeartPulse, label: 'Vitals', color: 'from-[#FFB347] to-[#FF6B6B]', delay: 0.45, id: 'wellness' },
           { icon: Bell, label: 'Reminders', color: 'from-[#9D4DFF] to-[#8D45E6]', delay: 0.5, id: 'reminders', isScreen: true },
           { icon: Activity, label: 'Health Score', color: 'from-[#FF6B6B] to-[#E55A5A]', delay: 0.55, id: 'health-score', isScreen: true },
+          { icon: ScanLine, label: 'Symptom AI', color: 'from-[#00D4AA] to-[#6C63FF]', delay: 0.6, id: 'symptom-checker', isScreen: true },
+          { icon: Mic, label: 'Scribe', color: 'from-[#FF6B9D] to-[#9D4DFF]', delay: 0.65, id: 'scribe', isScreen: true },
+          { icon: Calendar, label: 'Appointments', color: 'from-[#FFB347] to-[#FF9F7F]', delay: 0.7, id: 'appointments', isScreen: true },
         ].map((action, i) => (
           <motion.button
             key={action.label}
             onClick={() => {
               if (action.isScreen) {
                 if (action.id === 'health-score') {
-                  pushScreen({ id: 'health-score', component: <HealthScoreScreen member={FAMILY_MEMBERS.find(m => m.name === 'Rahul')} /> });
+                  pushScreen({ id: 'health-score', component: <HealthScoreScreen member={FAMILY_MEMBERS.find(m => m.name === 'Sandeep')} /> });
                 } else if (action.id === 'reminders') {
                   pushScreen({ id: 'reminders', component: <MedicationReminderScreen /> });
+                } else if (action.id === 'symptom-checker') {
+                  pushScreen({ id: 'symptom-checker', component: <SymptomCheckerScreen /> });
+                } else if (action.id === 'scribe') {
+                  pushScreen({ id: 'scribe', component: <MedicalScribeScreen /> });
+                } else if (action.id === 'appointments') {
+                  pushScreen({ id: 'appointments', component: <AppointmentsScreen /> });
+                } else if (action.id === 'book-lab') {
+                  pushScreen({ id: 'book-lab', component: <LabBookingScreen /> });
                 }
               } else {
                 setActiveTab(action.id);
@@ -216,35 +258,53 @@ export default function HomeScreen({ setActiveTab }: { setActiveTab: (tab: strin
       </motion.div>
 
       {/* Upcoming Appointment */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-      >
-        <h3 className="font-display text-lg font-bold mb-3">Upcoming</h3>
-        <div className="glass-card p-0 overflow-hidden relative">
-          <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary-gradient" />
-          <div className="p-5">
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex items-center">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#6C63FF] to-[#FF6B9D] flex items-center justify-center text-lg font-bold font-display mr-3">
-                  P
+      {nextAppointment && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <h3 className="font-display text-lg font-bold mb-3">Upcoming</h3>
+          <div className="glass-card p-0 overflow-hidden relative">
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary-gradient" />
+            <div className="p-5">
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center">
+                  <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${nextAppointment.doctorColor || 'from-[#6C63FF] to-[#00D4AA]'} flex items-center justify-center text-lg font-bold font-display mr-3`}>
+                    {nextAppointment.doctorInitials}
+                  </div>
+                  <div>
+                    <h4 className="font-bold">{nextAppointment.doctorName}</h4>
+                    <p className="text-xs text-[#8B8FA8]">{nextAppointment.doctorSpec}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-bold">Dr. Priya Sharma</h4>
-                  <p className="text-xs text-[#8B8FA8]">Cardiologist • JS Global Hospital</p>
+                <div className="bg-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold px-2 py-1 rounded-md flex items-center">
+                  <Calendar size={12} className="mr-1" /> {nextAppointment.selectedDate}, {nextAppointment.selectedTime}
                 </div>
               </div>
-              <div className="bg-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold px-2 py-1 rounded-md flex items-center">
-                <Calendar size={12} className="mr-1" /> Today, 4:30 PM
-              </div>
+              <button
+                onClick={() => {
+                  const doctor = {
+                    name: nextAppointment.doctorName,
+                    spec: nextAppointment.doctorSpec,
+                    initials: nextAppointment.doctorInitials,
+                    color: nextAppointment.doctorColor,
+                  };
+                  const type = nextAppointment.selectedType?.toLowerCase();
+                  if (type === 'chat') {
+                    pushScreen({ id: 'chat-apt', component: <ChatScreen doctor={doctor} /> });
+                  } else {
+                    pushScreen({ id: 'waiting-apt', component: <WaitingRoomScreen doctor={doctor} /> });
+                  }
+                }}
+                className="w-full bg-primary-gradient rounded-full py-3 font-bold text-sm shadow-[0_4px_24px_rgba(108,99,255,0.4)] hover:scale-[1.02] transition-transform"
+              >
+                {nextAppointment.selectedType?.toLowerCase() === 'chat' ? 'Go to Chat' : 'Join Video Consult'}
+              </button>
             </div>
-            <button className="w-full bg-primary-gradient rounded-full py-3 font-bold text-sm shadow-[0_4px_24px_rgba(108,99,255,0.4)] hover:scale-[1.02] transition-transform">
-              Join Video Consult
-            </button>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      )}
     </motion.div>
   );
 }

@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Flame, Target, Moon, Zap, Shield, ArrowRight, X, Sparkles, Loader2, Bell, Check } from 'lucide-react';
+import { Flame, Target, Moon, Zap, Shield, ArrowRight, X, Sparkles, Loader2, Bell } from 'lucide-react';
 import { generateWellnessPlan } from '../services/geminiService';
 import { useReminders } from '../contexts/ReminderContext';
 import { useNavigation } from '../contexts/NavigationContext';
-import { useCart } from '../contexts/CartContext';
 import CategoryPlanFlow from './CategoryPlanFlow';
-import MedicinesScreen from './MedicinesScreen';
 
 const QUIZ_QUESTIONS = [
   {
@@ -36,37 +34,14 @@ const QUIZ_QUESTIONS = [
   }
 ];
 
-const WELLNESS_PRODUCTS = [
-  { id: 'w1', name: 'Ashwagandha KSM-66',    benefit: 'Stress & Energy', price: 599,  color: 'from-[#6C63FF] to-[#00D4AA]', badge: 'Bestseller' },
-  { id: 'w2', name: 'Deep Sleep Melatonin',  benefit: 'Rest & Recovery', price: 450,  color: 'from-[#FF6B9D] to-[#FF9F7F]', badge: 'New' },
-  { id: 'w3', name: 'Plant Protein Isolate', benefit: 'Muscle Repair',   price: 1299, color: 'from-[#00C9A7] to-[#A8FF78]', badge: '' },
-];
-
 export default function WellnessScreen() {
   const { pushScreen } = useNavigation();
-  const { addItem } = useCart();
   const [showQuiz, setShowQuiz] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isGenerating, setIsGenerating] = useState(false);
   const [activePlan, setActivePlan] = useState<any>(null);
-  const [checkedGoals, setCheckedGoals] = useState<Set<number>>(new Set());
-  const [addedProductId, setAddedProductId] = useState<string | null>(null);
   const { enablePlanReminders, disablePlanReminders, remindersActive } = useReminders();
-
-  const addWellnessProduct = (product: typeof WELLNESS_PRODUCTS[0]) => {
-    addItem({ id: product.id, name: product.name, salt: product.benefit, price: product.price, image: '' });
-    setAddedProductId(product.id);
-    setTimeout(() => setAddedProductId(null), 1200);
-  };
-
-  const toggleGoal = (i: number) => {
-    setCheckedGoals(prev => {
-      const next = new Set(prev);
-      if (next.has(i)) next.delete(i); else next.add(i);
-      return next;
-    });
-  };
 
   const handleOptionSelect = async (option: string) => {
     const newAnswers = { ...answers, [QUIZ_QUESTIONS[currentQuestion].id]: option };
@@ -150,12 +125,11 @@ export default function WellnessScreen() {
                 
                 <div className="space-y-3 mt-5">
                   {activePlan.weekly_goals?.map((task: string, i: number) => (
-                    <button key={i} onClick={() => toggleGoal(i)} className="flex items-center w-full text-left">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 shrink-0 transition-all ${checkedGoals.has(i) ? 'bg-[#00C9A7] border-[#00C9A7]' : 'border-white/20'}`}>
-                        {checkedGoals.has(i) && <Check size={11} className="text-[#080F0C]" />}
+                    <div key={i} className="flex items-center">
+                      <div className="w-5 h-5 rounded-full border-2 border-white/20 flex items-center justify-center mr-3 transition-colors">
                       </div>
-                      <span className={`text-sm transition-colors ${checkedGoals.has(i) ? 'text-white/40 line-through' : 'text-white'}`}>{task}</span>
-                    </button>
+                      <span className="text-sm text-white">{task}</span>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -167,22 +141,23 @@ export default function WellnessScreen() {
         <section>
           <div className="flex justify-between items-end mb-4">
             <h2 className="font-display text-xl font-bold italic">Wellness Store ✦</h2>
-            <button
-              onClick={() => pushScreen({ id: 'wellness-store', component: <MedicinesScreen /> })}
-              className="text-xs text-[#8B8FA8] font-medium flex items-center h-11 px-2"
-            >
+            <button className="text-xs text-[#8B8FA8] font-medium flex items-center h-11 px-2">
               View All <ArrowRight size={12} className="ml-1" />
             </button>
           </div>
 
           <div className="flex overflow-x-auto pb-4 -mx-4 px-4 gap-4 no-scrollbar">
-            {WELLNESS_PRODUCTS.map((product) => (
-              <motion.div
-                key={product.id}
+            {[
+              { name: 'Ashwagandha KSM-66', benefit: 'Stress & Energy', price: '599', color: 'from-[#6C63FF] to-[#00D4AA]', badge: 'Bestseller' },
+              { name: 'Deep Sleep Melatonin', benefit: 'Rest & Recovery', price: '450', color: 'from-[#FF6B9D] to-[#FF9F7F]', badge: 'New' },
+              { name: 'Plant Protein Isolate', benefit: 'Muscle Repair', price: '1299', color: 'from-[#00C9A7] to-[#A8FF78]', badge: '' },
+            ].map((product, i) => (
+              <motion.div 
+                key={i}
                 whileHover={{ scale: 1.02 }}
                 className={`w-44 h-64 shrink-0 rounded-3xl overflow-hidden relative bg-gradient-to-br ${product.color} p-4 flex flex-col justify-between`}
               >
-                {/* Product Silhouette */}
+                {/* Product Silhouette Background */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none">
                   <div className="flex flex-col items-center transform -translate-y-4">
                     <div className="w-8 h-4 bg-white rounded-t-lg" />
@@ -190,7 +165,7 @@ export default function WellnessScreen() {
                   </div>
                 </div>
 
-                {/* Badge */}
+                {/* Badges */}
                 <div className="relative z-10">
                   {product.badge && (
                     <span className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-white shadow-lg ${
@@ -201,22 +176,15 @@ export default function WellnessScreen() {
                   )}
                 </div>
 
-                {/* Content */}
+                {/* Content at bottom */}
                 <div className="bg-[#13131A]/60 backdrop-blur-md rounded-2xl p-4 border border-white/10 relative z-10">
                   <h3 className="font-bold text-sm leading-tight text-white">{product.name}</h3>
                   <p className="text-[10px] text-white/70 mt-1 uppercase tracking-wider">{product.benefit}</p>
                   <div className="flex items-center justify-between mt-3">
                     <span className="font-mono font-bold text-white">₹{product.price}</span>
-                    <motion.button
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => addWellnessProduct(product)}
-                      className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors ${addedProductId === product.id ? 'bg-[#00C9A7]' : 'bg-white text-black'}`}
-                    >
-                      {addedProductId === product.id
-                        ? <Check size={18} className="text-[#080F0C]" />
-                        : <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-                      }
-                    </motion.button>
+                    <button className="w-11 h-11 rounded-full bg-white text-black flex items-center justify-center hover:scale-110 transition-transform">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                    </button>
                   </div>
                 </div>
               </motion.div>
