@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
-import { Activity, Calendar, Droplet, HeartPulse, Pill, Stethoscope, Bell, ScanLine, Mic, PhoneCall } from 'lucide-react';
+import { Activity, Calendar, Droplet, HeartPulse, Pill, Stethoscope, Bell, ScanLine, Mic, PhoneCall, Search } from 'lucide-react';
+import GlobalSearchScreen from './GlobalSearchScreen';
 import { useNavigation } from '../contexts/NavigationContext';
 import ProfileScreen from './ProfileScreen';
 import HealthScoreScreen from './HealthScoreScreen';
@@ -55,6 +56,18 @@ export default function HomeScreen({ setActiveTab }: { setActiveTab: (tab: strin
           </button>
         </div>
       </header>
+
+      {/* Search Bar */}
+      <motion.button
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        onClick={() => pushScreen({ id: 'global-search', component: <GlobalSearchScreen /> })}
+        className="w-full flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-left"
+      >
+        <Search size={18} className="text-[#8B8FA8] shrink-0" />
+        <span className="text-sm text-[#8B8FA8]">Search doctors, medicines, labs...</span>
+      </motion.button>
 
       {/* Hero Health Score */}
       <motion.div 
