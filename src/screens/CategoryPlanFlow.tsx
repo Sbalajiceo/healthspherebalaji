@@ -304,8 +304,7 @@ export default function CategoryPlanFlow({ category, icon, color }: CategoryPlan
               {/* CTA */}
               <motion.button
                 whileTap={{ scale: 0.95 }}
-                onClick={popScreen}
-              className={`w-full h-14 rounded-full bg-gradient-to-r ${color} text-white font-bold text-lg flex items-center justify-center shadow-lg mt-8`}
+                className={`w-full h-14 rounded-full bg-gradient-to-r ${color} text-white font-bold text-lg flex items-center justify-center shadow-lg mt-8`}
               >
                 Start Your Protocol <ArrowRight size={20} className="ml-2" />
               </motion.button>

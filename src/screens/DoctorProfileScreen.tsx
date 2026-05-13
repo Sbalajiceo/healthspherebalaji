@@ -2,13 +2,11 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, Star, Video, Phone, MessageSquare, Calendar, Clock, CheckCircle2, MapPin, CreditCard, Wallet, Building2, ArrowRight } from 'lucide-react';
 import { useNavigation } from '../contexts/NavigationContext';
-import { useAppointments } from '../contexts/AppointmentsContext';
 import ChatScreen from './ChatScreen';
 import WaitingRoomScreen from './WaitingRoomScreen';
 
 export default function DoctorProfileScreen({ doctor, consultType }: { doctor: any, consultType?: string }) {
   const { pushScreen, popScreen } = useNavigation();
-  const { addAppointment } = useAppointments();
   const [showBooking, setShowBooking] = useState(false);
   const [bookingStep, setBookingStep] = useState(consultType === 'PHYSICAL' ? 2 : 1);
   const [selectedType, setSelectedType] = useState(consultType === 'PHYSICAL' ? 'Physical' : '');
@@ -22,15 +20,6 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
   };
 
   const handlePayment = () => {
-    addAppointment({
-      doctorName: doctor.name,
-      doctorSpec: doctor.spec,
-      doctorInitials: doctor.initials,
-      doctorColor: doctor.color,
-      selectedDate,
-      selectedTime,
-      selectedType: selectedType || consultType || 'video',
-    });
     setIsSuccess(true);
   };
 

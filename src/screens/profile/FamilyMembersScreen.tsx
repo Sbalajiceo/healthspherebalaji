@@ -4,8 +4,9 @@ import { ChevronLeft, Plus, User, HeartPulse, MoreVertical } from 'lucide-react'
 import { useNavigation } from '../../contexts/NavigationContext';
 
 const FAMILY_MEMBERS = [
-  { id: 1, name: 'Sneha Balaji', relation: 'Spouse', age: 28, blood: 'A+', avatar: 'https://picsum.photos/seed/sneha/200/200' },
-  { id: 2, name: 'Kamla Balaji', relation: 'Mother', age: 60, blood: 'B+', avatar: 'https://picsum.photos/seed/kamla/200/200' },
+  { id: 1, name: 'Priya Verma', relation: 'Wife', age: 30, blood: 'A+', avatar: 'https://picsum.photos/seed/priya/200/200' },
+  { id: 2, name: 'Aarav Verma', relation: 'Son', age: 8, blood: 'O+', avatar: 'https://picsum.photos/seed/aarav/200/200' },
+  { id: 3, name: 'Sunita Verma', relation: 'Mother', age: 62, blood: 'B+', avatar: 'https://picsum.photos/seed/sunita/200/200' },
 ];
 
 export default function FamilyMembersScreen() {

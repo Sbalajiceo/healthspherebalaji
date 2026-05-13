@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Phone, PhoneOff, Video } from 'lucide-react';
 import { useNavigation } from '../contexts/NavigationContext';
-import ChatScreen from './ChatScreen';
 
 export default function WaitingRoomScreen({ doctor }: { doctor: any }) {
-  const { popScreen, pushScreen } = useNavigation();
+  const { popScreen } = useNavigation();
   const [dots, setDots] = useState('');
 
   useEffect(() => {
@@ -74,10 +73,9 @@ export default function WaitingRoomScreen({ doctor }: { doctor: any }) {
             <PhoneOff size={28} className="text-white" />
           </motion.button>
           
-          <motion.button
+          <motion.button 
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => pushScreen({ id: 'chat', component: <ChatScreen doctor={doctor} /> })}
             className="w-20 h-20 rounded-full bg-[#00D4AA] flex items-center justify-center shadow-[0_0_30px_rgba(0,212,170,0.5)]"
           >
             <Video size={32} className="text-black" />

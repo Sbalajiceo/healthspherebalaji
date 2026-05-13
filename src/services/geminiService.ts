@@ -7,7 +7,7 @@ const SYSTEM_INSTRUCTION = `You are the AI brain powering HealthSphere — India
 export async function generateTriage(symptoms: string) {
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: `Analyze these symptoms: "${symptoms}". Provide triage information.`,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -46,7 +46,7 @@ export async function generateHealthSummary(records: any[], context?: string) {
       : `Generate a health summary based on these timeline records: ${JSON.stringify(records)}`;
       
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: prompt,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -79,7 +79,7 @@ export async function generateHealthSummary(records: any[], context?: string) {
 export async function generateWellnessPlan(answers: any) {
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: `Generate a wellness plan based on these user answers: ${JSON.stringify(answers)}`,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -111,7 +111,7 @@ export async function generateWellnessPlan(answers: any) {
 export async function generateCategoryPlan(category: string, answers: any) {
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: `Generate a highly personalized, Hims/Hers style healthcare plan for the category "${category}" based on these user answers: ${JSON.stringify(answers)}. Make it sound premium, science-backed, and tailored to their specific needs.`,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -167,7 +167,7 @@ export async function generateCategoryPlan(category: string, answers: any) {
 export async function findGenericAlternatives(medicineQuery: string) {
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: `Find generic alternatives for: "${medicineQuery}". Use realistic Indian medicine names and ₹ prices.`,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -205,85 +205,6 @@ export async function findGenericAlternatives(medicineQuery: string) {
     return JSON.parse(response.text || '{}').substitution;
   } catch (error) {
     console.error("Substitution error:", error);
-    return null;
-  }
-}
-
-export async function generateDoctorReply(
-  userMessage: string,
-  doctor: { name: string; spec: string },
-  history: Array<{ role: string; text: string }>
-) {
-  try {
-    const historyText = history.length > 0
-      ? `Previous conversation:\n${history.map(m => `${m.role === 'user' ? 'Patient (Sandeep)' : doctor.name}: ${m.text}`).join('\n')}\n\n`
-      : '';
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: `${historyText}Patient (Sandeep) says: "${userMessage}"`,
-      config: {
-        systemInstruction: `You are ${doctor.name}, a ${doctor.spec} on HealthSphere — an Indian healthcare app. You are in a live text chat consultation with your patient Sandeep. Respond warmly and professionally, like a real doctor texting a patient. Keep replies brief (1–3 sentences max). Ask follow-up questions when relevant. Never break character. ${SYSTEM_INSTRUCTION}`,
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            reply: { type: Type.STRING, description: "The doctor's reply — brief, warm, professional, 1-3 sentences" }
-          },
-          required: ['reply']
-        }
-      }
-    });
-    return JSON.parse(response.text || '{}').reply;
-  } catch (error) {
-    console.error('Doctor reply error:', error);
-    return null;
-  }
-}
-
-export async function generateMedicalNote(transcript: string) {
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: `Extract a structured medical note from this consultation transcript: "${transcript}"`,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            note: {
-              type: Type.OBJECT,
-              properties: {
-                chief_complaint: { type: Type.STRING },
-                symptoms: { type: Type.ARRAY, items: { type: Type.STRING } },
-                diagnosis: { type: Type.STRING },
-                prescription: {
-                  type: Type.ARRAY,
-                  items: {
-                    type: Type.OBJECT,
-                    properties: {
-                      name: { type: Type.STRING },
-                      dosage: { type: Type.STRING },
-                      frequency: { type: Type.STRING },
-                      duration: { type: Type.STRING },
-                    },
-                    required: ['name', 'dosage', 'frequency', 'duration']
-                  }
-                },
-                advice: { type: Type.ARRAY, items: { type: Type.STRING } },
-                follow_up: { type: Type.STRING },
-              },
-              required: ['chief_complaint', 'symptoms', 'diagnosis', 'prescription', 'advice', 'follow_up']
-            }
-          },
-          required: ['note']
-        }
-      }
-    });
-    return JSON.parse(response.text || '{}').note;
-  } catch (error) {
-    console.error('Medical note error:', error);
     return null;
   }
 }

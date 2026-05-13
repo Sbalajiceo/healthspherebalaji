@@ -5,7 +5,7 @@ import { useNavigation } from '../contexts/NavigationContext';
 import FamilyMemberScoreScreen from './FamilyMemberScoreScreen';
 
 export const FAMILY_MEMBERS = [
-  { name: 'Sandeep', relation: 'Self', score: 78, color: 'from-[#6C63FF] to-[#00D4AA]', goal: 'Reduce blood pressure' },
+  { name: 'Rahul', relation: 'Self', score: 78, color: 'from-[#6C63FF] to-[#00D4AA]', goal: 'Reduce blood pressure' },
   { name: 'Sneha', relation: 'Spouse', score: 92, color: 'from-[#00D4AA] to-[#A8FF78]', goal: 'Maintain active lifestyle' },
   { name: 'Kamla', relation: 'Mother', score: 65, color: 'from-[#FFB347] to-[#FF6B6B]', goal: 'Improve joint mobility' },
 ];

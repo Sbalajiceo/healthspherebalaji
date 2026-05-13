@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { User, Users, Smartphone, CreditCard, Settings, HelpCircle, LogOut, ChevronRight, Activity, ArrowLeft, ShoppingBag } from 'lucide-react';
+import { User, Users, Smartphone, CreditCard, Settings, HelpCircle, LogOut, ChevronRight, Activity, ArrowLeft } from 'lucide-react';
 import { useNavigation } from '../contexts/NavigationContext';
 import PersonalInformationScreen from './profile/PersonalInformationScreen';
 import FamilyMembersScreen from './profile/FamilyMembersScreen';
@@ -8,7 +8,6 @@ import LinkedDevicesScreen from './profile/LinkedDevicesScreen';
 import PaymentMethodsScreen from './profile/PaymentMethodsScreen';
 import SettingsPrivacyScreen from './profile/SettingsPrivacyScreen';
 import HelpSupportScreen from './profile/HelpSupportScreen';
-import OrdersScreen from './OrdersScreen';
 
 export default function ProfileScreen() {
   const { popScreen, pushScreen } = useNavigation();
@@ -37,15 +36,15 @@ export default function ProfileScreen() {
         <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#6C63FF] to-[#00D4AA] p-1 mb-4 shadow-[0_0_30px_rgba(108,99,255,0.3)]">
           <div className="w-full h-full rounded-full bg-[#13131A] flex items-center justify-center overflow-hidden">
             <img 
-              src="https://picsum.photos/seed/sandeep/200/200"
+              src="https://picsum.photos/seed/rahul/200/200" 
               alt="Profile" 
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"
             />
           </div>
         </div>
-        <h1 className="font-display text-2xl font-bold">Sandeep Balaji</h1>
-        <p className="text-[#8B8FA8] text-sm mt-1">26 yrs • Male • O+</p>
+        <h1 className="font-display text-2xl font-bold">Rahul Verma</h1>
+        <p className="text-[#8B8FA8] text-sm mt-1">32 yrs • Male • O+</p>
       </header>
 
       {/* Health Score Widget */}
@@ -56,19 +55,18 @@ export default function ProfileScreen() {
             <Activity size={14} className="mr-1 text-[#00D4AA]" /> Health Score
           </div>
           <div className="flex items-baseline">
-            <span className="font-mono text-3xl font-bold text-white">78</span>
-            <span className="text-[#8B8FA8] text-sm ml-1">/100</span>
+            <span className="font-mono text-3xl font-bold text-white">850</span>
+            <span className="text-[#8B8FA8] text-sm ml-1">/1000</span>
           </div>
         </div>
         <div className="bg-[#00D4AA]/20 text-[#00D4AA] px-3 py-1 rounded-full text-xs font-bold border border-[#00D4AA]/30">
-          Good
+          Excellent
         </div>
       </div>
 
       {/* Options List */}
       <div className="space-y-3">
         {[
-          { icon: ShoppingBag, label: 'My Orders', color: 'text-[#84CC16]', id: 'orders', component: <OrdersScreen /> },
           { icon: User, label: 'Personal Information', color: 'text-[#6C63FF]', id: 'personal-info', component: <PersonalInformationScreen /> },
           { icon: Users, label: 'Family Members', color: 'text-[#00D4AA]', id: 'family-members', component: <FamilyMembersScreen /> },
           { icon: Smartphone, label: 'Linked Devices', color: 'text-[#FFB347]', id: 'linked-devices', component: <LinkedDevicesScreen /> },
