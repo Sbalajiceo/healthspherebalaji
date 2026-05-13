@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Upload, Plus, Search, ShoppingCart, Activity, Heart, Thermometer, Pill, X, Camera, FileText, Check, Sparkles } from 'lucide-react';
+import { Upload, Plus, Search, ShoppingCart, Activity, Heart, Thermometer, Pill, X, Camera, FileText, Check, Sparkles, Loader2 } from 'lucide-react';
 import { useNavigation } from '../contexts/NavigationContext';
 import { useCart } from '../contexts/CartContext';
 import MedicineDetailScreen from './MedicineDetailScreen';
@@ -8,9 +8,9 @@ import CartScreen from './CartScreen';
 import GlobalSearchScreen from './GlobalSearchScreen';
 
 const CATEGORIES = [
-  { id: 1, name: 'Vitamins',      icon: <Pill size={22} className="text-[#84CC16]" />,   color: 'bg-[#84CC16]/10', activeColor: 'bg-[#84CC16]/30 border-[#84CC16]' },
+  { id: 1, name: 'Vitamins',      icon: <Pill size={22} className="text-[#84CC16]" />,    color: 'bg-[#84CC16]/10', activeColor: 'bg-[#84CC16]/30 border-[#84CC16]' },
   { id: 2, name: 'Devices',       icon: <Activity size={22} className="text-[#3B82F6]" />, color: 'bg-[#3B82F6]/10', activeColor: 'bg-[#3B82F6]/30 border-[#3B82F6]' },
-  { id: 3, name: 'Personal Care', icon: <Heart size={22} className="text-[#EC4899]" />,   color: 'bg-[#EC4899]/10', activeColor: 'bg-[#EC4899]/30 border-[#EC4899]' },
+  { id: 3, name: 'Personal Care', icon: <Heart size={22} className="text-[#EC4899]" />,    color: 'bg-[#EC4899]/10', activeColor: 'bg-[#EC4899]/30 border-[#EC4899]' },
   { id: 4, name: 'Ayurveda',      icon: <Thermometer size={22} className="text-[#F59E0B]" />, color: 'bg-[#F59E0B]/10', activeColor: 'bg-[#F59E0B]/30 border-[#F59E0B]' },
 ];
 
@@ -22,29 +22,39 @@ const SHOP_BY_CONCERN = [
 ];
 
 const MOCK_POPULAR = [
-  { id: 1,  brand_name: 'Accu-Chek Active Test Strips',  salt_name: 'Diagnostic Device',          category: 'Devices',       generic_available: false, brand_price_inr: 975,  generic_price_inr: 975,  savings_inr: 0,   price_display: '₹975',   image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=400&auto=format&fit=crop' },
-  { id: 2,  brand_name: 'Ensure Diabetes Care (Vanilla)', salt_name: 'Nutritional Drink',          category: 'Vitamins',      generic_available: false, brand_price_inr: 1250, generic_price_inr: 1250, savings_inr: 0,   price_display: '₹1,250', image: 'https://images.unsplash.com/photo-1640592398327-1428a2a1975b?q=80&w=400&auto=format&fit=crop' },
-  { id: 3,  brand_name: 'Pan 40mg Tablet',                salt_name: 'Pantoprazole',               category: 'Vitamins',      generic_available: true,  brand_price_inr: 155,  generic_price_inr: 45,   savings_inr: 110, price_display: '₹155',   image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?q=80&w=400&auto=format&fit=crop' },
-  { id: 4,  brand_name: 'Shelcal 500mg',                  salt_name: 'Calcium + Vitamin D3',       category: 'Vitamins',      generic_available: true,  brand_price_inr: 119,  generic_price_inr: 35,   savings_inr: 84,  price_display: '₹119',   image: 'https://images.unsplash.com/photo-1550572017-edb3f8e4e6f4?q=80&w=400&auto=format&fit=crop' },
-  { id: 7,  brand_name: 'Ashwagandha KSM-66',             salt_name: 'Withania Somnifera Extract', category: 'Ayurveda',      generic_available: false, brand_price_inr: 599,  generic_price_inr: 599,  savings_inr: 0,   price_display: '₹599',   image: 'https://images.unsplash.com/photo-1550572017-edb3f8e4e6f4?q=80&w=400&auto=format&fit=crop' },
+  { id: 1,  brand_name: 'Accu-Chek Active Test Strips',   salt_name: 'Diagnostic Device',          category: 'Devices',       generic_available: false, brand_price_inr: 975,  generic_price_inr: 975,  savings_inr: 0,   price_display: '₹975',   image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=400&auto=format&fit=crop' },
+  { id: 2,  brand_name: 'Ensure Diabetes Care (Vanilla)',  salt_name: 'Nutritional Drink',          category: 'Vitamins',      generic_available: false, brand_price_inr: 1250, generic_price_inr: 1250, savings_inr: 0,   price_display: '₹1,250', image: 'https://images.unsplash.com/photo-1640592398327-1428a2a1975b?q=80&w=400&auto=format&fit=crop' },
+  { id: 3,  brand_name: 'Pan 40mg Tablet',                 salt_name: 'Pantoprazole',               category: 'Personal Care', generic_available: true,  brand_price_inr: 155,  generic_price_inr: 45,   savings_inr: 110, price_display: '₹155',   image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?q=80&w=400&auto=format&fit=crop' },
+  { id: 4,  brand_name: 'Shelcal 500mg',                   salt_name: 'Calcium + Vitamin D3',       category: 'Vitamins',      generic_available: true,  brand_price_inr: 119,  generic_price_inr: 35,   savings_inr: 84,  price_display: '₹119',   image: 'https://images.unsplash.com/photo-1550572017-edb3f8e4e6f4?q=80&w=400&auto=format&fit=crop' },
+  { id: 7,  brand_name: 'Ashwagandha KSM-66',              salt_name: 'Withania Somnifera Extract', category: 'Ayurveda',      generic_available: false, brand_price_inr: 599,  generic_price_inr: 599,  savings_inr: 0,   price_display: '₹599',   image: 'https://images.unsplash.com/photo-1550572017-edb3f8e4e6f4?q=80&w=400&auto=format&fit=crop' },
 ];
 
 const MOCK_AI_REC = [
   { id: 5,  brand_name: 'Vicks Vaporub 50ml',       salt_name: 'Menthol + Camphor', category: 'Personal Care', generic_available: false, brand_price_inr: 150,  generic_price_inr: 150,  savings_inr: 0,  price_display: '₹150',   subtitle: 'Ointment • 50g',      discount: '5% OFF',  image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=400&auto=format&fit=crop' },
-  { id: 6,  brand_name: 'Dolo 650 Tablet',          salt_name: 'Paracetamol',       category: 'Vitamins',      generic_available: true,  brand_price_inr: 30,   generic_price_inr: 15,   savings_inr: 15, price_display: '₹30',    subtitle: 'Tablets • 15 pills',  discount: '10% OFF', image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?q=80&w=400&auto=format&fit=crop' },
-  { id: 8,  brand_name: 'Himalaya Neem Face Wash',  salt_name: 'Neem + Turmeric',   category: 'Personal Care', generic_available: false, brand_price_inr: 130,  generic_price_inr: 130,  savings_inr: 0,  price_display: '₹130',   subtitle: 'Face Wash • 100ml',   discount: '8% OFF',  image: 'https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?q=80&w=400&auto=format&fit=crop' },
-  { id: 9,  brand_name: 'Omron BP Monitor',         salt_name: 'Diagnostic Device', category: 'Devices',       generic_available: false, brand_price_inr: 2499, generic_price_inr: 2499, savings_inr: 0,  price_display: '₹2,499', subtitle: 'Upper Arm • Auto',    discount: '12% OFF', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=400&auto=format&fit=crop' },
+  { id: 6,  brand_name: 'Dolo 650 Tablet',           salt_name: 'Paracetamol',       category: 'Personal Care', generic_available: true,  brand_price_inr: 30,   generic_price_inr: 15,   savings_inr: 15, price_display: '₹30',    subtitle: 'Tablets • 15 pills',  discount: '10% OFF', image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?q=80&w=400&auto=format&fit=crop' },
+  { id: 8,  brand_name: 'Himalaya Neem Face Wash',   salt_name: 'Neem + Turmeric',   category: 'Personal Care', generic_available: false, brand_price_inr: 130,  generic_price_inr: 130,  savings_inr: 0,  price_display: '₹130',   subtitle: 'Face Wash • 100ml',   discount: '8% OFF',  image: 'https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?q=80&w=400&auto=format&fit=crop' },
+  { id: 9,  brand_name: 'Omron BP Monitor',          salt_name: 'Diagnostic Device', category: 'Devices',       generic_available: false, brand_price_inr: 2499, generic_price_inr: 2499, savings_inr: 0,  price_display: '₹2,499', subtitle: 'Upper Arm • Auto',    discount: '12% OFF', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=400&auto=format&fit=crop' },
+];
+
+const PRESCRIPTION_MEDS = [
+  { id: 101, name: 'Metformin 500mg', salt: 'Metformin Hydrochloride', price: 42,  image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?q=80&w=400&auto=format&fit=crop' },
+  { id: 102, name: 'Amlong 5mg',      salt: 'Amlodipine (5mg)',        price: 45,  image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?q=80&w=400&auto=format&fit=crop' },
+  { id: 103, name: 'Vitamin B12',     salt: 'Methylcobalamin 500mcg',  price: 89,  image: 'https://images.unsplash.com/photo-1550572017-edb3f8e4e6f4?q=80&w=400&auto=format&fit=crop' },
 ];
 
 export default function MedicinesScreen() {
   const { pushScreen } = useNavigation();
   const { addItem, totalItems } = useCart();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [showAllTrending, setShowAllTrending] = useState(false);
   const [showAllAiRec, setShowAllAiRec] = useState(false);
   const [showUploadSheet, setShowUploadSheet] = useState(false);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [addedId, setAddedId] = useState<number | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const filteredPopular = activeCategory ? MOCK_POPULAR.filter(m => m.category === activeCategory) : MOCK_POPULAR;
   const filteredAiRec   = activeCategory ? MOCK_AI_REC.filter(m => m.category === activeCategory)  : MOCK_AI_REC;
@@ -72,8 +82,33 @@ export default function MedicinesScreen() {
     setShowAllTrending(true);
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setSelectedFile(file.name);
+    e.target.value = '';
+  };
+
+  const closeSheet = () => {
+    setShowUploadSheet(false);
+    setSelectedFile(null);
+    setIsProcessing(false);
+  };
+
+  const handleProcessPrescription = () => {
+    setIsProcessing(true);
+    setTimeout(() => {
+      PRESCRIPTION_MEDS.forEach(med => addItem({ id: med.id, name: med.name, salt: med.salt, price: med.price, image: med.image }));
+      closeSheet();
+      openCart();
+    }, 1800);
+  };
+
   return (
     <div className="min-h-screen bg-[#111512] text-white pb-52 font-sans">
+
+      {/* Hidden file inputs */}
+      <input ref={fileInputRef}   type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFileChange} />
+      <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileChange} />
 
       {/* Header */}
       <div className="px-5 pt-12 pb-4 flex items-center justify-between">
@@ -86,7 +121,9 @@ export default function MedicinesScreen() {
           />
           <div>
             <h1 className="font-bold text-lg leading-tight">Sandeep</h1>
-            <p className="text-[#9CA3AF] text-xs mt-0.5">13 Prescriptions • 78% Score</p>
+            <p className="text-[#9CA3AF] text-xs mt-0.5">
+              {totalItems > 0 ? `${totalItems} item${totalItems !== 1 ? 's' : ''} in cart` : 'Free delivery above ₹500'} • 78% Score
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -96,7 +133,7 @@ export default function MedicinesScreen() {
           >
             <ShoppingCart size={20} className="text-white" />
             {totalItems > 0 && (
-              <span className="absolute top-2 right-2 w-4 h-4 bg-[#84CC16] rounded-full flex items-center justify-center text-[10px] font-bold text-[#111512] border-2 border-[#1A201D]">
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#84CC16] rounded-full flex items-center justify-center text-[10px] font-bold text-[#111512] border-2 border-[#111512]">
                 {totalItems}
               </span>
             )}
@@ -104,7 +141,7 @@ export default function MedicinesScreen() {
         </div>
       </div>
 
-      {/* Search Bar — opens Global Search */}
+      {/* Search Bar */}
       <div className="px-5 mb-6">
         <button
           onClick={() => pushScreen({ id: 'global-search', component: <GlobalSearchScreen /> })}
@@ -189,7 +226,7 @@ export default function MedicinesScreen() {
 
         {showAllTrending ? (
           <div className="px-5 grid grid-cols-2 gap-4 pb-6">
-            {(filteredPopular.length > 0 ? filteredPopular : MOCK_POPULAR).map((med) => (
+            {filteredPopular.length > 0 ? filteredPopular.map((med) => (
               <motion.div
                 key={med.id}
                 whileTap={{ scale: 0.97 }}
@@ -211,14 +248,13 @@ export default function MedicinesScreen() {
                   </motion.button>
                 </div>
               </motion.div>
-            ))}
-            {filteredPopular.length === 0 && (
+            )) : (
               <p className="text-[#9CA3AF] text-sm col-span-2 py-8 text-center">No products in this category.</p>
             )}
           </div>
         ) : (
           <div className="flex overflow-x-auto px-5 pb-6 gap-4 no-scrollbar">
-            {filteredPopular.map((med) => (
+            {filteredPopular.length > 0 ? filteredPopular.map((med) => (
               <motion.div
                 key={med.id}
                 whileTap={{ scale: 0.97 }}
@@ -240,15 +276,14 @@ export default function MedicinesScreen() {
                   </motion.button>
                 </div>
               </motion.div>
-            ))}
-            {filteredPopular.length === 0 && (
+            )) : (
               <p className="text-[#9CA3AF] text-sm px-2 py-8">No products in this category.</p>
             )}
           </div>
         )}
       </div>
 
-      {/* AI Recommendation */}
+      {/* AI Picks */}
       <div className="mt-4">
         <div className="px-5 flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold">AI Picks for You</h2>
@@ -259,7 +294,7 @@ export default function MedicinesScreen() {
 
         {showAllAiRec ? (
           <div className="px-5 space-y-4 pb-6">
-            {(filteredAiRec.length > 0 ? filteredAiRec : MOCK_AI_REC).map((med) => (
+            {filteredAiRec.length > 0 ? filteredAiRec.map((med) => (
               <motion.div
                 key={med.id}
                 whileTap={{ scale: 0.97 }}
@@ -285,14 +320,13 @@ export default function MedicinesScreen() {
                   </div>
                 </div>
               </motion.div>
-            ))}
-            {filteredAiRec.length === 0 && (
+            )) : (
               <p className="text-[#9CA3AF] text-sm px-2 py-4 text-center">No recommendations in this category.</p>
             )}
           </div>
         ) : (
           <div className="flex overflow-x-auto px-5 pb-6 gap-4 no-scrollbar">
-            {filteredAiRec.map((med) => (
+            {filteredAiRec.length > 0 ? filteredAiRec.map((med) => (
               <motion.div
                 key={med.id}
                 whileTap={{ scale: 0.97 }}
@@ -320,8 +354,7 @@ export default function MedicinesScreen() {
                   </motion.button>
                 </div>
               </motion.div>
-            ))}
-            {filteredAiRec.length === 0 && (
+            )) : (
               <p className="text-[#9CA3AF] text-sm px-5 py-8 text-center">No recommendations in this category.</p>
             )}
           </div>
@@ -347,8 +380,8 @@ export default function MedicinesScreen() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => { setShowUploadSheet(false); setSelectedFile(null); }}
-              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm max-w-[390px] mx-auto"
+              onClick={!isProcessing ? closeSheet : undefined}
+              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
             />
             <motion.div
               initial={{ y: '100%' }}
@@ -358,69 +391,82 @@ export default function MedicinesScreen() {
               className="fixed bottom-0 left-0 right-0 z-50 max-w-[390px] mx-auto"
             >
               <div className="bg-[#13131A] rounded-t-3xl p-6 border-t border-white/10">
-                {/* Handle */}
                 <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5" />
 
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="font-bold text-xl">Upload Prescription</h2>
-                  <button
-                    onClick={() => { setShowUploadSheet(false); setSelectedFile(null); }}
-                    className="w-9 h-9 flex items-center justify-center bg-white/10 rounded-full"
-                  >
-                    <X size={18} />
-                  </button>
-                </div>
-
-                <div
-                  className={`border-2 border-dashed rounded-3xl p-7 flex flex-col items-center justify-center text-center mb-4 transition-colors ${selectedFile ? 'border-[#84CC16] bg-[#84CC16]/5' : 'border-white/20 bg-white/5 cursor-pointer'}`}
-                  onClick={() => !selectedFile && setSelectedFile('prescription.pdf')}
-                >
-                  {selectedFile ? (
-                    <>
-                      <div className="w-14 h-14 rounded-full bg-[#84CC16]/20 flex items-center justify-center mb-3">
-                        <FileText size={28} className="text-[#84CC16]" />
-                      </div>
-                      <p className="font-bold text-white mb-1">{selectedFile}</p>
-                      <p className="text-[#9CA3AF] text-sm mb-3">1.2 MB • PDF</p>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setSelectedFile(null); }}
-                        className="text-[#EF4444] text-sm font-bold px-4 py-1.5 rounded-full bg-[#EF4444]/10"
-                      >
-                        Remove
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <div className="w-14 h-14 rounded-full bg-[#84CC16]/20 flex items-center justify-center mb-3">
-                        <Upload size={28} className="text-[#84CC16]" />
-                      </div>
-                      <p className="font-bold text-white mb-1">Tap to Browse</p>
-                      <p className="text-[#9CA3AF] text-sm">PDF, JPG, PNG · Max 5MB</p>
-                    </>
+                  {!isProcessing && (
+                    <button
+                      onClick={closeSheet}
+                      className="w-9 h-9 flex items-center justify-center bg-white/10 rounded-full"
+                    >
+                      <X size={18} />
+                    </button>
                   )}
                 </div>
 
-                {!selectedFile && (
-                  <button
-                    onClick={() => setSelectedFile('scan.jpg')}
-                    className="w-full bg-[#1A201D] rounded-2xl p-4 flex items-center justify-center gap-3 mb-4 border border-white/5"
-                  >
-                    <Camera size={18} className="text-[#84CC16]" />
-                    <span className="font-bold text-sm">Take a Photo</span>
-                  </button>
-                )}
+                {isProcessing ? (
+                  <div className="py-8 flex flex-col items-center justify-center text-center">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                      className="mb-4"
+                    >
+                      <Loader2 size={40} className="text-[#84CC16]" />
+                    </motion.div>
+                    <p className="font-bold text-white mb-1">Reading prescription…</p>
+                    <p className="text-[#9CA3AF] text-sm">AI is identifying your medicines</p>
+                  </div>
+                ) : (
+                  <>
+                    <div
+                      className={`border-2 border-dashed rounded-3xl p-7 flex flex-col items-center justify-center text-center mb-4 transition-colors ${selectedFile ? 'border-[#84CC16] bg-[#84CC16]/5' : 'border-white/20 bg-white/5 cursor-pointer'}`}
+                      onClick={() => !selectedFile && fileInputRef.current?.click()}
+                    >
+                      {selectedFile ? (
+                        <>
+                          <div className="w-14 h-14 rounded-full bg-[#84CC16]/20 flex items-center justify-center mb-3">
+                            <FileText size={28} className="text-[#84CC16]" />
+                          </div>
+                          <p className="font-bold text-white mb-1">{selectedFile}</p>
+                          <p className="text-[#9CA3AF] text-sm mb-3">Ready to process</p>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setSelectedFile(null); }}
+                            className="text-[#EF4444] text-sm font-bold px-4 py-1.5 rounded-full bg-[#EF4444]/10"
+                          >
+                            Remove
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-14 h-14 rounded-full bg-[#84CC16]/20 flex items-center justify-center mb-3">
+                            <Upload size={28} className="text-[#84CC16]" />
+                          </div>
+                          <p className="font-bold text-white mb-1">Tap to Browse</p>
+                          <p className="text-[#9CA3AF] text-sm">PDF, JPG, PNG · Max 5MB</p>
+                        </>
+                      )}
+                    </div>
 
-                <button
-                  disabled={!selectedFile}
-                  onClick={() => {
-                    setShowUploadSheet(false);
-                    setSelectedFile(null);
-                    openCart();
-                  }}
-                  className={`w-full h-14 rounded-2xl font-bold text-base transition-all ${selectedFile ? 'bg-[#84CC16] text-[#111512] shadow-[0_8px_30px_rgba(132,204,22,0.3)]' : 'bg-white/10 text-[#9CA3AF] cursor-not-allowed'}`}
-                >
-                  Process Prescription
-                </button>
+                    {!selectedFile && (
+                      <button
+                        onClick={() => cameraInputRef.current?.click()}
+                        className="w-full bg-[#1A201D] rounded-2xl p-4 flex items-center justify-center gap-3 mb-4 border border-white/5"
+                      >
+                        <Camera size={18} className="text-[#84CC16]" />
+                        <span className="font-bold text-sm">Take a Photo</span>
+                      </button>
+                    )}
+
+                    <button
+                      disabled={!selectedFile}
+                      onClick={handleProcessPrescription}
+                      className={`w-full h-14 rounded-2xl font-bold text-base transition-all ${selectedFile ? 'bg-[#84CC16] text-[#111512] shadow-[0_8px_30px_rgba(132,204,22,0.3)]' : 'bg-white/10 text-[#9CA3AF] cursor-not-allowed'}`}
+                    >
+                      Process Prescription
+                    </button>
+                  </>
+                )}
               </div>
             </motion.div>
           </>
