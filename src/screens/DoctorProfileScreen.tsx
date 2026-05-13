@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, Star, Video, Phone, MessageSquare, Calendar, Clock, CheckCircle2, MapPin, CreditCard, Wallet, Building2, ArrowRight } from 'lucide-react';
 import { useNavigation } from '../contexts/NavigationContext';
@@ -6,20 +6,55 @@ import { useAppointments } from '../contexts/AppointmentsContext';
 import ChatScreen from './ChatScreen';
 import WaitingRoomScreen from './WaitingRoomScreen';
 
-export default function DoctorProfileScreen({ doctor, consultType }: { doctor: any, consultType?: string }) {
+const PRICE_MAP: Record<string, number> = { video: 500, audio: 300, chat: 200, physical: 500 };
+
+const REVIEWS = [
+  { text: '"Very patient and explained everything clearly. Highly recommend!"', time: '2 days ago' },
+  { text: '"Diagnosed my issue quickly and prescribed the right treatment."', time: '1 week ago' },
+  { text: '"Best online consultation I\'ve had. Will definitely return."', time: '2 weeks ago' },
+];
+
+const getDates = (): string[] => {
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const today = new Date();
+  return Array.from({ length: 5 }, (_, i) => {
+    if (i === 0) return 'Today';
+    if (i === 1) return 'Tomorrow';
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    return `${days[d.getDay()]} ${d.getDate()}`;
+  });
+};
+
+export default function DoctorProfileScreen({
+  doctor,
+  consultType,
+  preSelectedType,
+}: {
+  doctor: any;
+  consultType?: string | null;
+  preSelectedType?: string;
+}) {
   const { pushScreen, popScreen } = useNavigation();
   const { addAppointment } = useAppointments();
+
+  const initialType = consultType === 'PHYSICAL' ? 'physical' : (preSelectedType ?? '');
+  const initialStep = consultType === 'PHYSICAL' || preSelectedType ? 2 : 1;
+
   const [showBooking, setShowBooking] = useState(false);
-  const [bookingStep, setBookingStep] = useState(consultType === 'PHYSICAL' ? 2 : 1);
-  const [selectedType, setSelectedType] = useState(consultType === 'PHYSICAL' ? 'Physical' : '');
+  const [bookingStep, setBookingStep] = useState(initialStep);
+  const [selectedType, setSelectedType] = useState(initialType);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [selectedPayment, setSelectedPayment] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleBook = () => {
-    setBookingStep(3); // Go to payment
-  };
+  const dates = getDates();
+  const consultPrice = PRICE_MAP[selectedType?.toLowerCase()] ?? 500;
+
+  useEffect(() => {
+    if (preSelectedType) setShowBooking(true);
+  }, []);
 
   const handlePayment = () => {
     addAppointment({
@@ -36,19 +71,17 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
 
   const openChat = () => {
     setShowBooking(false);
-    pushScreen({
-      id: `chat-${doctor.name}`,
-      component: <ChatScreen doctor={doctor} />
-    });
+    pushScreen({ id: `chat-${doctor.name}`, component: <ChatScreen doctor={doctor} /> });
   };
 
   const openWaitingRoom = () => {
     setShowBooking(false);
-    pushScreen({
-      id: `waiting-${doctor.name}`,
-      component: <WaitingRoomScreen doctor={doctor} />
-    });
+    pushScreen({ id: `waiting-${doctor.name}`, component: <WaitingRoomScreen doctor={doctor} /> });
   };
+
+  const feeDisplay = selectedType
+    ? `₹${PRICE_MAP[selectedType.toLowerCase()] ?? 500}`
+    : '₹200–₹500';
 
   return (
     <div className="min-h-screen bg-[#0A0A0F] text-white pb-24 relative">
@@ -57,7 +90,6 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
         <button onClick={popScreen} className="w-10 h-10 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center text-white mt-4">
           <ChevronLeft size={24} />
         </button>
-        
         <div className="flex items-end">
           <div className="w-24 h-24 rounded-full bg-white/20 backdrop-blur-md border-4 border-[#0A0A0F] flex items-center justify-center text-4xl font-bold font-display shadow-xl">
             {doctor.initials}
@@ -77,7 +109,7 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
             <span className="text-[10px] text-[#8B8FA8] uppercase tracking-wider mt-1">Experience</span>
           </div>
           <div className="flex-1 glass-card p-4 flex flex-col items-center justify-center">
-            <span className="font-mono text-xl font-bold text-[#00D4AA]">₹500</span>
+            <span className="font-mono text-xl font-bold text-[#00D4AA]">{feeDisplay}</span>
             <span className="text-[10px] text-[#8B8FA8] uppercase tracking-wider mt-1">Consult Fee</span>
           </div>
           <div className="flex-1 glass-card p-4 flex flex-col items-center justify-center">
@@ -97,20 +129,22 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
         </div>
 
         {/* Languages */}
-        <div>
-          <h3 className="text-sm font-bold text-[#8B8FA8] uppercase tracking-wider mb-3">Speaks</h3>
-          <div className="flex gap-2">
-            {doctor.lang.split(', ').map((l: string) => (
-              <span key={l} className="glass-card px-4 py-2 text-sm font-medium">{l}</span>
-            ))}
+        {doctor.lang && (
+          <div>
+            <h3 className="text-sm font-bold text-[#8B8FA8] uppercase tracking-wider mb-3">Speaks</h3>
+            <div className="flex gap-2">
+              {doctor.lang.split(', ').map((l: string) => (
+                <span key={l} className="glass-card px-4 py-2 text-sm font-medium">{l}</span>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* About */}
         <div>
           <h3 className="text-sm font-bold text-[#8B8FA8] uppercase tracking-wider mb-3">About</h3>
           <p className="text-sm text-white/80 leading-relaxed">
-            {doctor.name} is a highly experienced {doctor.spec} with over {doctor.exp} of clinical practice. Specializes in accurate diagnosis and compassionate patient care.
+            {doctor.name} is a highly experienced {doctor.spec} with over {doctor.exp} of clinical practice. Specialises in accurate diagnosis and compassionate patient care.
           </p>
         </div>
 
@@ -118,15 +152,15 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
         <div>
           <h3 className="text-sm font-bold text-[#8B8FA8] uppercase tracking-wider mb-3">Patient Reviews</h3>
           <div className="flex overflow-x-auto pb-4 -mx-4 px-4 gap-4 no-scrollbar">
-            {[1, 2, 3].map((i) => (
+            {REVIEWS.map((r, i) => (
               <div key={i} className="w-64 shrink-0 glass-card p-4">
                 <div className="flex items-center mb-2">
                   <div className="flex text-[#FFB347]">
                     {[1,2,3,4,5].map(s => <Star key={s} size={10} className="fill-[#FFB347]" />)}
                   </div>
-                  <span className="text-xs text-[#8B8FA8] ml-2">2 days ago</span>
+                  <span className="text-xs text-[#8B8FA8] ml-2">{r.time}</span>
                 </div>
-                <p className="text-sm text-white/90">"Very patient and explained everything clearly. Highly recommend!"</p>
+                <p className="text-sm text-white/90">{r.text}</p>
               </div>
             ))}
           </div>
@@ -135,7 +169,7 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
 
       {/* Sticky Book Button */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#0A0A0F] via-[#0A0A0F]/90 to-transparent z-40 max-w-[390px] mx-auto">
-        <motion.button 
+        <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowBooking(true)}
           className="w-full h-14 rounded-full bg-primary-gradient text-white font-bold text-lg shadow-[0_8px_32px_rgba(108,99,255,0.3)]"
@@ -152,9 +186,9 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-50 bg-[#0A0A0F]/90 backdrop-blur-sm flex flex-col justify-end max-w-[390px] mx-auto"
+            className="fixed inset-0 z-50 bg-[#0A0A0F]/90 backdrop-blur-sm flex flex-col justify-end"
           >
-            <div className="bg-[#13131A] rounded-t-3xl p-6 border-t border-white/10 min-h-[60vh] flex flex-col">
+            <div className="bg-[#13131A] rounded-t-3xl p-6 border-t border-white/10 min-h-[60vh] flex flex-col max-w-[390px] mx-auto w-full">
               {!isSuccess ? (
                 <>
                   <div className="flex justify-between items-center mb-6">
@@ -162,16 +196,17 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
                     <button onClick={() => setShowBooking(false)} className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">✕</button>
                   </div>
 
+                  {/* Step 1: Select Type */}
                   {bookingStep === 1 && (
                     <div className="flex-1">
                       <h3 className="text-sm font-bold text-[#8B8FA8] uppercase tracking-wider mb-4">Select Type</h3>
                       <div className="grid grid-cols-3 gap-3">
                         {[
-                          { id: 'video', icon: Video, label: 'Video', price: '₹500' },
-                          { id: 'audio', icon: Phone, label: 'Audio', price: '₹300' },
-                          { id: 'chat', icon: MessageSquare, label: 'Chat', price: '₹200' },
+                          { id: 'video', icon: Video,          label: 'Video', price: '₹500' },
+                          { id: 'audio', icon: Phone,          label: 'Audio', price: '₹300' },
+                          { id: 'chat',  icon: MessageSquare,  label: 'Chat',  price: '₹200' },
                         ].map(type => (
-                          <button 
+                          <button
                             key={type.id}
                             onClick={() => setSelectedType(type.id)}
                             className={`p-4 rounded-2xl flex flex-col items-center justify-center border transition-all ${selectedType === type.id ? 'bg-[#6C63FF]/20 border-[#6C63FF]' : 'bg-white/5 border-white/10'}`}
@@ -182,7 +217,7 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
                           </button>
                         ))}
                       </div>
-                      <button 
+                      <button
                         disabled={!selectedType}
                         onClick={() => setBookingStep(2)}
                         className={`w-full h-14 rounded-full font-bold mt-8 transition-all ${selectedType ? 'bg-primary-gradient text-white' : 'bg-white/10 text-[#8B8FA8]'}`}
@@ -192,12 +227,13 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
                     </div>
                   )}
 
+                  {/* Step 2: Date & Time */}
                   {bookingStep === 2 && (
                     <div className="flex-1">
                       <h3 className="text-sm font-bold text-[#8B8FA8] uppercase tracking-wider mb-4">Select Date</h3>
                       <div className="flex overflow-x-auto pb-4 -mx-6 px-6 gap-3 no-scrollbar">
-                        {['Today', 'Tomorrow', 'Wed 22', 'Thu 23', 'Fri 24'].map(date => (
-                          <button 
+                        {dates.map(date => (
+                          <button
                             key={date}
                             onClick={() => setSelectedDate(date)}
                             className={`px-6 py-3 rounded-full whitespace-nowrap font-bold transition-all ${selectedDate === date ? 'bg-primary-gradient text-white' : 'glass-card text-[#8B8FA8]'}`}
@@ -212,7 +248,7 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
                         {['09:00 AM', '10:30 AM', '11:00 AM', '02:00 PM', '04:30 PM', '06:00 PM'].map((time, i) => {
                           const isAvailable = i !== 2 && i !== 4;
                           return (
-                            <button 
+                            <button
                               key={time}
                               disabled={!isAvailable}
                               onClick={() => setSelectedTime(time)}
@@ -220,20 +256,21 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
                             >
                               {time}
                             </button>
-                          )
+                          );
                         })}
                       </div>
 
-                      <button 
+                      <button
                         disabled={!selectedDate || !selectedTime}
-                        onClick={handleBook}
+                        onClick={() => setBookingStep(3)}
                         className={`w-full h-14 rounded-full font-bold mt-8 transition-all ${selectedDate && selectedTime ? 'bg-primary-gradient text-white shadow-[0_8px_32px_rgba(108,99,255,0.3)]' : 'bg-white/10 text-[#8B8FA8]'}`}
                       >
-                        Continue to Pay ₹500
+                        Continue to Pay ₹{consultPrice}
                       </button>
                     </div>
                   )}
 
+                  {/* Step 3: Payment */}
                   {bookingStep === 3 && (
                     <div className="flex-1 flex flex-col">
                       <div className="flex items-center mb-6">
@@ -242,14 +279,14 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
                         </button>
                         <h3 className="text-lg font-bold text-white">Payment Method</h3>
                       </div>
-                      
+
                       <div className="space-y-3 flex-1">
                         {[
-                          { id: 'upi', icon: Wallet, label: 'UPI (GPay, PhonePe, Paytm)', desc: 'Pay directly from your bank account' },
-                          { id: 'card', icon: CreditCard, label: 'Credit / Debit Card', desc: 'Visa, Mastercard, RuPay' },
-                          { id: 'netbanking', icon: Building2, label: 'Netbanking', desc: 'All major Indian banks supported' },
+                          { id: 'upi',        icon: Wallet,     label: 'UPI (GPay, PhonePe, Paytm)', desc: 'Pay directly from your bank account' },
+                          { id: 'card',       icon: CreditCard, label: 'Credit / Debit Card',         desc: 'Visa, Mastercard, RuPay' },
+                          { id: 'netbanking', icon: Building2,  label: 'Netbanking',                  desc: 'All major Indian banks supported' },
                         ].map(method => (
-                          <button 
+                          <button
                             key={method.id}
                             onClick={() => setSelectedPayment(method.id)}
                             className={`w-full p-4 rounded-2xl flex items-center text-left border transition-all ${selectedPayment === method.id ? 'bg-[#00D4AA]/10 border-[#00D4AA]' : 'bg-white/5 border-white/10'}`}
@@ -268,19 +305,19 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
                         ))}
                       </div>
 
-                      <button 
+                      <button
                         disabled={!selectedPayment}
                         onClick={handlePayment}
                         className={`w-full h-14 rounded-full font-bold mt-8 transition-all flex items-center justify-center ${selectedPayment ? 'bg-[#00D4AA] text-black shadow-[0_8px_32px_rgba(0,212,170,0.3)]' : 'bg-white/10 text-[#8B8FA8]'}`}
                       >
-                        Pay ₹500 Securely
+                        Pay ₹{consultPrice} Securely
                       </button>
                     </div>
                   )}
                 </>
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center text-center py-4">
-                  <motion.div 
+                  <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: 'spring', damping: 15, stiffness: 200 }}
@@ -295,8 +332,12 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
                     <CheckCircle2 size={48} className="text-[#00D4AA] relative z-10" />
                   </motion.div>
                   <h2 className="font-display text-3xl font-bold mb-2 text-white">Booking Confirmed!</h2>
-                  <p className="text-[#8B8FA8] mb-6 px-4">Your {selectedType} consultation with {doctor.name} is scheduled for <strong className="text-white">{selectedDate}</strong> at <strong className="text-white">{selectedTime}</strong>.</p>
-                  
+                  <p className="text-[#8B8FA8] mb-6 px-4">
+                    Your {selectedType} consultation with {doctor.name} is scheduled for{' '}
+                    <strong className="text-white">{selectedDate}</strong> at{' '}
+                    <strong className="text-white">{selectedTime}</strong>.
+                  </p>
+
                   {consultType === 'PHYSICAL' ? (
                     <div className="w-full bg-[#1A1A24] rounded-2xl p-4 mb-6 text-left border border-white/5">
                       <div className="flex items-start gap-3">
@@ -308,7 +349,10 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
                           <p className="text-xs text-[#8B8FA8] leading-relaxed mb-3">
                             Apollo Spectra Hospitals, 12th Main Rd, Sector 6, HSR Layout, Bengaluru, Karnataka 560102
                           </p>
-                          <button onClick={() => window.open('https://maps.google.com/?q=Apollo+Spectra+Hospitals+HSR+Layout+Bengaluru', '_blank')} className="text-[#00D4AA] text-sm font-bold flex items-center">
+                          <button
+                            onClick={() => window.open('https://maps.google.com/?q=Apollo+Spectra+Hospitals+HSR+Layout+Bengaluru', '_blank')}
+                            className="text-[#00D4AA] text-sm font-bold flex items-center"
+                          >
                             Locate Now <ArrowRight size={14} className="ml-1" />
                           </button>
                         </div>
@@ -321,7 +365,7 @@ export default function DoctorProfileScreen({ doctor, consultType }: { doctor: a
                           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#6C63FF] to-[#00D4AA] flex items-center justify-center font-bold text-xl">
                             {doctor.initials}
                           </div>
-                          <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#00D4AA] border-2 border-[#1A1A24] rounded-full"></div>
+                          <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#00D4AA] border-2 border-[#1A1A24] rounded-full" />
                         </div>
                         <div>
                           <h4 className="font-bold text-white text-base">{doctor.name}</h4>
