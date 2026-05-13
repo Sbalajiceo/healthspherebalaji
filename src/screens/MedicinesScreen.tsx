@@ -8,7 +8,7 @@ import CartScreen from './CartScreen';
 import GlobalSearchScreen from './GlobalSearchScreen';
 
 const CATEGORIES = [
-  { id: 1, name: 'Vitamins',      icon: <Pill size={22} className="text-[#84CC16]" />,    color: 'bg-[#84CC16]/10', activeColor: 'bg-[#84CC16]/30 border-[#84CC16]' },
+  { id: 1, name: 'Vitamins',      icon: <Pill size={22} className="text-[#6C63FF]" />,    color: 'bg-[#6C63FF]/10', activeColor: 'bg-[#6C63FF]/30 border-[#6C63FF]' },
   { id: 2, name: 'Devices',       icon: <Activity size={22} className="text-[#3B82F6]" />, color: 'bg-[#3B82F6]/10', activeColor: 'bg-[#3B82F6]/30 border-[#3B82F6]' },
   { id: 3, name: 'Personal Care', icon: <Heart size={22} className="text-[#EC4899]" />,    color: 'bg-[#EC4899]/10', activeColor: 'bg-[#EC4899]/30 border-[#EC4899]' },
   { id: 4, name: 'Ayurveda',      icon: <Thermometer size={22} className="text-[#F59E0B]" />, color: 'bg-[#F59E0B]/10', activeColor: 'bg-[#F59E0B]/30 border-[#F59E0B]' },
@@ -133,7 +133,7 @@ export default function MedicinesScreen() {
           >
             <ShoppingCart size={20} className="text-white" />
             {totalItems > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#84CC16] rounded-full flex items-center justify-center text-[10px] font-bold text-[#111512] border-2 border-[#111512]">
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#6C63FF] rounded-full flex items-center justify-center text-[10px] font-bold text-white border-2 border-[#111512]">
                 {totalItems}
               </span>
             )}
@@ -149,7 +149,7 @@ export default function MedicinesScreen() {
         >
           <Search size={18} className="text-[#9CA3AF] shrink-0" />
           <span className="text-sm text-[#9CA3AF]">Search medicines, health products...</span>
-          <span className="ml-auto flex items-center gap-1 bg-[#84CC16]/10 text-[#84CC16] text-[10px] font-bold px-2 py-1 rounded-lg shrink-0">
+          <span className="ml-auto flex items-center gap-1 bg-[#6C63FF]/10 text-[#6C63FF] text-[10px] font-bold px-2 py-1 rounded-lg shrink-0">
             <Sparkles size={10} /> AI
           </span>
         </button>
@@ -182,7 +182,7 @@ export default function MedicinesScreen() {
           })}
         </div>
         {activeCategory && (
-          <p className="text-xs text-[#84CC16] font-medium mt-3">Showing {activeCategory} products</p>
+          <p className="text-xs text-[#6C63FF] font-medium mt-3">Showing {activeCategory} products</p>
         )}
       </div>
 
@@ -192,7 +192,7 @@ export default function MedicinesScreen() {
           <h2 className="text-lg font-bold">Shop by Concern</h2>
           <button
             onClick={() => { setActiveCategory(null); setShowAllTrending(true); }}
-            className="text-[#84CC16] text-sm font-medium"
+            className="text-[#6C63FF] text-sm font-medium"
           >
             See All
           </button>
@@ -204,10 +204,10 @@ export default function MedicinesScreen() {
               onClick={() => filterByConcern(concern.category)}
               className={`w-20 shrink-0 flex flex-col items-center gap-2 transition-opacity ${activeCategory && activeCategory !== concern.category ? 'opacity-40' : 'opacity-100'}`}
             >
-              <div className={`w-20 h-20 rounded-full overflow-hidden border-2 transition-all ${activeCategory === concern.category ? 'border-[#84CC16]' : 'border-[#1A201D]'}`}>
+              <div className={`w-20 h-20 rounded-full overflow-hidden border-2 transition-all ${activeCategory === concern.category ? 'border-[#6C63FF]' : 'border-[#1A201D]'}`}>
                 <img src={concern.image} alt={concern.name} className="w-full h-full object-cover opacity-80" />
               </div>
-              <span className={`text-xs text-center font-medium transition-colors ${activeCategory === concern.category ? 'text-[#84CC16]' : 'text-[#9CA3AF]'}`}>
+              <span className={`text-xs text-center font-medium transition-colors ${activeCategory === concern.category ? 'text-[#6C63FF]' : 'text-[#9CA3AF]'}`}>
                 {concern.name}
               </span>
             </button>
@@ -219,7 +219,7 @@ export default function MedicinesScreen() {
       <div className="mt-2">
         <div className="px-5 flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold">Trending Products</h2>
-          <button onClick={() => setShowAllTrending(v => !v)} className="text-[#84CC16] text-sm font-medium">
+          <button onClick={() => setShowAllTrending(v => !v)} className="text-[#6C63FF] text-sm font-medium">
             {showAllTrending ? 'Show Less' : 'See All'}
           </button>
         </div>
@@ -242,7 +242,7 @@ export default function MedicinesScreen() {
                   <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={(e) => { e.stopPropagation(); quickAdd(med); }}
-                    className={`w-7 h-7 rounded-full flex items-center justify-center text-[#111512] transition-colors ${addedId === med.id ? 'bg-white' : 'bg-[#84CC16]'}`}
+                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${addedId === med.id ? 'bg-white text-[#6C63FF]' : 'bg-[#6C63FF] text-white'}`}
                   >
                     {addedId === med.id ? <Check size={14} /> : <Plus size={16} />}
                   </motion.button>
@@ -270,7 +270,7 @@ export default function MedicinesScreen() {
                   <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={(e) => { e.stopPropagation(); quickAdd(med); }}
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-[#111512] transition-colors ${addedId === med.id ? 'bg-white' : 'bg-[#84CC16]'}`}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${addedId === med.id ? 'bg-white text-[#6C63FF]' : 'bg-[#6C63FF] text-white'}`}
                   >
                     {addedId === med.id ? <Check size={16} /> : <Plus size={20} />}
                   </motion.button>
@@ -287,7 +287,7 @@ export default function MedicinesScreen() {
       <div className="mt-4">
         <div className="px-5 flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold">AI Picks for You</h2>
-          <button onClick={() => setShowAllAiRec(v => !v)} className="text-[#84CC16] text-sm font-medium">
+          <button onClick={() => setShowAllAiRec(v => !v)} className="text-[#6C63FF] text-sm font-medium">
             {showAllAiRec ? 'Show Less' : 'See All'}
           </button>
         </div>
@@ -313,7 +313,7 @@ export default function MedicinesScreen() {
                     <motion.button
                       whileTap={{ scale: 0.9 }}
                       onClick={(e) => { e.stopPropagation(); quickAdd(med); }}
-                      className={`px-3 h-8 rounded-xl font-bold text-xs border transition-colors flex items-center gap-1 ${addedId === med.id ? 'bg-white/20 border-white/30 text-white' : 'bg-[#84CC16]/10 text-[#84CC16] border-[#84CC16]/20'}`}
+                      className={`px-3 h-8 rounded-xl font-bold text-xs border transition-colors flex items-center gap-1 ${addedId === med.id ? 'bg-white/20 border-white/30 text-white' : 'bg-[#6C63FF]/10 text-[#6C63FF] border-[#6C63FF]/20'}`}
                     >
                       {addedId === med.id ? <><Check size={12} /> Added</> : 'Add'}
                     </motion.button>
@@ -348,7 +348,7 @@ export default function MedicinesScreen() {
                   <motion.button
                     whileTap={{ scale: 0.97 }}
                     onClick={(e) => { e.stopPropagation(); quickAdd(med); }}
-                    className={`w-full h-10 rounded-xl font-bold text-sm flex items-center justify-center border gap-2 transition-colors ${addedId === med.id ? 'bg-white/10 text-white border-white/20' : 'bg-[#84CC16]/10 text-[#84CC16] border-[#84CC16]/20'}`}
+                    className={`w-full h-10 rounded-xl font-bold text-sm flex items-center justify-center border gap-2 transition-colors ${addedId === med.id ? 'bg-white/10 text-white border-white/20' : 'bg-[#6C63FF]/10 text-[#6C63FF] border-[#6C63FF]/20'}`}
                   >
                     {addedId === med.id ? <><Check size={14} /> Added to Cart</> : 'Add to Cart'}
                   </motion.button>
@@ -366,7 +366,7 @@ export default function MedicinesScreen() {
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={() => setShowUploadSheet(true)}
-          className="w-full h-14 rounded-2xl bg-[#84CC16] text-[#111512] font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(132,204,22,0.35)]"
+          className="w-full h-14 rounded-2xl bg-primary-gradient text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(108,99,255,0.35)]"
         >
           <Upload size={18} /> Upload Prescription
         </motion.button>
@@ -412,7 +412,7 @@ export default function MedicinesScreen() {
                       transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
                       className="mb-4"
                     >
-                      <Loader2 size={40} className="text-[#84CC16]" />
+                      <Loader2 size={40} className="text-[#6C63FF]" />
                     </motion.div>
                     <p className="font-bold text-white mb-1">Reading prescription…</p>
                     <p className="text-[#9CA3AF] text-sm">AI is identifying your medicines</p>
@@ -420,13 +420,13 @@ export default function MedicinesScreen() {
                 ) : (
                   <>
                     <div
-                      className={`border-2 border-dashed rounded-3xl p-7 flex flex-col items-center justify-center text-center mb-4 transition-colors ${selectedFile ? 'border-[#84CC16] bg-[#84CC16]/5' : 'border-white/20 bg-white/5 cursor-pointer'}`}
+                      className={`border-2 border-dashed rounded-3xl p-7 flex flex-col items-center justify-center text-center mb-4 transition-colors ${selectedFile ? 'border-[#6C63FF] bg-[#6C63FF]/5' : 'border-white/20 bg-white/5 cursor-pointer'}`}
                       onClick={() => !selectedFile && fileInputRef.current?.click()}
                     >
                       {selectedFile ? (
                         <>
-                          <div className="w-14 h-14 rounded-full bg-[#84CC16]/20 flex items-center justify-center mb-3">
-                            <FileText size={28} className="text-[#84CC16]" />
+                          <div className="w-14 h-14 rounded-full bg-[#6C63FF]/20 flex items-center justify-center mb-3">
+                            <FileText size={28} className="text-[#6C63FF]" />
                           </div>
                           <p className="font-bold text-white mb-1">{selectedFile}</p>
                           <p className="text-[#9CA3AF] text-sm mb-3">Ready to process</p>
@@ -439,8 +439,8 @@ export default function MedicinesScreen() {
                         </>
                       ) : (
                         <>
-                          <div className="w-14 h-14 rounded-full bg-[#84CC16]/20 flex items-center justify-center mb-3">
-                            <Upload size={28} className="text-[#84CC16]" />
+                          <div className="w-14 h-14 rounded-full bg-[#6C63FF]/20 flex items-center justify-center mb-3">
+                            <Upload size={28} className="text-[#6C63FF]" />
                           </div>
                           <p className="font-bold text-white mb-1">Tap to Browse</p>
                           <p className="text-[#9CA3AF] text-sm">PDF, JPG, PNG · Max 5MB</p>
@@ -453,7 +453,7 @@ export default function MedicinesScreen() {
                         onClick={() => cameraInputRef.current?.click()}
                         className="w-full bg-[#1A201D] rounded-2xl p-4 flex items-center justify-center gap-3 mb-4 border border-white/5"
                       >
-                        <Camera size={18} className="text-[#84CC16]" />
+                        <Camera size={18} className="text-[#6C63FF]" />
                         <span className="font-bold text-sm">Take a Photo</span>
                       </button>
                     )}
@@ -461,7 +461,7 @@ export default function MedicinesScreen() {
                     <button
                       disabled={!selectedFile}
                       onClick={handleProcessPrescription}
-                      className={`w-full h-14 rounded-2xl font-bold text-base transition-all ${selectedFile ? 'bg-[#84CC16] text-[#111512] shadow-[0_8px_30px_rgba(132,204,22,0.3)]' : 'bg-white/10 text-[#9CA3AF] cursor-not-allowed'}`}
+                      className={`w-full h-14 rounded-2xl font-bold text-base transition-all ${selectedFile ? 'bg-primary-gradient text-white shadow-[0_8px_30px_rgba(108,99,255,0.3)]' : 'bg-white/10 text-[#9CA3AF] cursor-not-allowed'}`}
                     >
                       Process Prescription
                     </button>

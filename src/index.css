@@ -60,3 +60,16 @@
     scrollbar-width: none;
   }
 }
+
+[data-theme="light"] {
+  --color-bg-base: #F0F0FF;
+  --color-bg-surface: #FFFFFF;
+  --color-text-primary: #111122;
+  --color-text-secondary: #555577;
+}
+
+[data-theme="light"] .glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(108, 99, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(108, 99, 255, 0.08);
+}

@@ -17,13 +17,15 @@ import { ReminderProvider } from './contexts/ReminderContext';
 import { CartProvider } from './contexts/CartContext';
 import { AppointmentsProvider } from './contexts/AppointmentsContext';
 import { OrdersProvider } from './contexts/OrdersContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 
 function MainApp() {
   const [activeTab, setActiveTab] = useState('home');
   const { screens } = useNavigation();
+  const { resolvedTheme } = useTheme();
 
   return (
-    <div className="min-h-screen w-full flex justify-center bg-black font-sans">
+    <div className="min-h-screen w-full flex justify-center bg-black font-sans" data-theme={resolvedTheme}>
       <div className={`relative w-full max-w-[390px] h-[100dvh] overflow-hidden flex flex-col transition-colors duration-500 translate-x-0 ${activeTab === 'wellness' ? 'bg-[#080F0C]' : 'bg-[#0A0A0F]'} text-white`}>
         {/* Background Orbs */}
         <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-[#6C63FF] opacity-15 blur-[80px] pointer-events-none" />
@@ -78,16 +80,18 @@ function AppRoot() {
 
 export default function App() {
   return (
-    <NavigationProvider>
-      <CartProvider>
-        <OrdersProvider>
-        <AppointmentsProvider>
-          <ReminderProvider>
-            <AppRoot />
-          </ReminderProvider>
-        </AppointmentsProvider>
-        </OrdersProvider>
-      </CartProvider>
-    </NavigationProvider>
+    <ThemeProvider>
+      <NavigationProvider>
+        <CartProvider>
+          <OrdersProvider>
+            <AppointmentsProvider>
+              <ReminderProvider>
+                <AppRoot />
+              </ReminderProvider>
+            </AppointmentsProvider>
+          </OrdersProvider>
+        </CartProvider>
+      </NavigationProvider>
+    </ThemeProvider>
   );
 }
