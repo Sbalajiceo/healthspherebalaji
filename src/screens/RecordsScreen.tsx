@@ -446,10 +446,10 @@ export default function RecordsScreen() {
 
               <div className="grid grid-cols-2 gap-4 mb-8">
                 {[
-                  { icon: Beaker, label: 'Lab Report', color: 'text-[#6C63FF]', bg: 'bg-[#6C63FF]/10', action: () => {} },
+                  { icon: Beaker, label: 'Lab Report', color: 'text-[#6C63FF]', bg: 'bg-[#6C63FF]/10', action: () => { setShowUploadSheet(false); setAddRecordType('lab'); setShowAddRecord(true); } },
                   { icon: FileText, label: 'Prescription', color: 'text-[#FFB347]', bg: 'bg-[#FFB347]/10', action: () => { setShowUploadSheet(false); setShowPrescriptionUpload(true); } },
                   { icon: Activity, label: 'Vitals', color: 'text-[#00D4AA]', bg: 'bg-[#00D4AA]/10', action: () => { setShowUploadSheet(false); setShowVitalsSheet(true); } },
-                  { icon: Stethoscope, label: 'Doctor Note', color: 'text-[#FF6B9D]', bg: 'bg-[#FF6B9D]/10', action: () => {} },
+                  { icon: Stethoscope, label: 'Doctor Note', color: 'text-[#FF6B9D]', bg: 'bg-[#FF6B9D]/10', action: () => { setShowUploadSheet(false); setAddRecordType('other'); setShowAddRecord(true); } },
                 ].map((item, i) => (
                   <button key={i} onClick={item.action} className="glass-card p-4 rounded-2xl flex flex-col items-center justify-center hover:bg-white/10 transition-colors">
                     <div className={`w-12 h-12 rounded-full ${item.bg} flex items-center justify-center mb-3`}>
