@@ -55,7 +55,7 @@ function MainApp() {
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              transition={{ type: 'tween', ease: 'easeOut', duration: 0.28 }}
               className={`absolute inset-0 z-50 overflow-y-auto overflow-x-hidden no-scrollbar ${activeTab === 'wellness' ? 'bg-[#080F0C]' : 'bg-[#0A0A0F]'}`}
               style={{ zIndex: 50 + index }}
             >

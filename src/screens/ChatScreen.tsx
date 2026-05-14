@@ -77,8 +77,8 @@ export default function ChatScreen({ doctor }: { doctor: any }) {
 
       {/* Chat Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#0A0A0F] no-scrollbar pb-4">
-        <div className="text-center text-xs text-[#8B8FA8] my-4 bg-[#13131A] inline-block px-3 py-1 rounded-full mx-auto table">
-          Today
+        <div className="flex justify-center my-4">
+          <span className="bg-[#13131A] px-3 py-1 rounded-full text-xs text-[#8B8FA8]">Today</span>
         </div>
 
         {messages.map((msg) => (
