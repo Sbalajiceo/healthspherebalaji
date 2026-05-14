@@ -34,7 +34,15 @@ export default function HealthScoreScreen({ member }: { member?: any }) {
   const [currentWater, setCurrentWater] = useState(1400);
   const [activeVitalTab, setActiveVitalTab] = useState<'hr' | 'bp' | 'spo2' | 'sugar'>('hr');
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [todayMedsTaken, setTodayMedsTaken] = useState<Record<string, boolean>>({
+    amlodipine: true,
+    metformin: false,
+    vitamind: false,
+  });
   const maxWater = 2500;
+
+  const toggleTodayMed = (id: string) =>
+    setTodayMedsTaken(prev => ({ ...prev, [id]: !prev[id] }));
 
   const defaultMember = { name: 'Sandeep', score: 78, color: 'from-[#0A8B8B] to-[#02C39A]' };
   const activeMember = member || defaultMember;
@@ -68,11 +76,17 @@ export default function HealthScoreScreen({ member }: { member?: any }) {
   const waterTranslateY = 100 - (waterPercentage * 100);
   const numGlasses = Math.floor(currentWater / 250);
 
+  const todayIndex = 24;
+  const todayTakenCount = Object.values(todayMedsTaken).filter(Boolean).length;
+  const todayDotStatus =
+    todayTakenCount === MEDS.length ? 'today-t' :
+    todayTakenCount > 0            ? 'today-p' : 'today-r';
+
   const calendarDays = [
     't','t','t','t','p','t','t',
     't','r','t','t','p','t','t',
     't','t','t','p','t','t','r',
-    't','t','t','today','f','f','f',
+    't','t','t', todayDotStatus,'f','f','f',
     'f','f','f'
   ];
 
@@ -81,11 +95,14 @@ export default function HealthScoreScreen({ member }: { member?: any }) {
     let textClass = 'text-white';
     let borderClass = '';
     const isFuture = status === 'f';
+    const isToday = status.startsWith('today');
 
     if (status === 't') bgStyle = { backgroundColor: color1 };
     else if (status === 'p') bgStyle = { background: 'linear-gradient(to bottom right, #FF6B35, #1A1A1A)' };
     else if (status === 'r') bgStyle = { backgroundColor: '#E53E3E' };
-    else if (status === 'today') { bgStyle = { backgroundColor: color1 }; borderClass = 'border-2 border-white'; }
+    else if (status === 'today-t') { bgStyle = { backgroundColor: color1 }; borderClass = 'border-2 border-white'; }
+    else if (status === 'today-p') { bgStyle = { background: 'linear-gradient(to bottom right, #FF6B35, #1A1A1A)' }; borderClass = 'border-2 border-white'; }
+    else if (status === 'today-r') { bgStyle = { backgroundColor: '#E53E3E' }; borderClass = 'border-2 border-white'; }
     else if (isFuture) { borderClass = 'border border-[#333]'; textClass = 'text-[#9CA3AF]'; }
 
     return (
@@ -108,9 +125,11 @@ export default function HealthScoreScreen({ member }: { member?: any }) {
 
   // Compute bottom-sheet data when a day is selected
   const sheetData = selectedDay !== null ? (() => {
+    const isToday = selectedDay === todayIndex;
     const status = calendarDays[selectedDay];
-    const pattern = DAY_PATTERNS[status] ?? [false, false, false];
-    const dayMeds = MEDS.map((m, i) => ({ ...m, taken: pattern[i] }));
+    const dayMeds = isToday
+      ? MEDS.map(m => ({ ...m, taken: todayMedsTaken[m.id] }))
+      : MEDS.map((m, i) => ({ ...m, taken: (DAY_PATTERNS[status] ?? [false, false, false])[i] }));
     const allTaken = dayMeds.every(m => m.taken);
     const noneTaken = dayMeds.every(m => !m.taken);
     const label = allTaken ? 'All taken ✅' : noneTaken ? 'All missed ❌' : 'Partial adherence ⚠️';
@@ -245,47 +264,42 @@ export default function HealthScoreScreen({ member }: { member?: any }) {
 
         <div className="text-base font-semibold text-center mb-5">🔥 12 day streak — keep going</div>
 
-        <div className="flex items-center py-3 border-t border-white/5">
-          <div className="w-10 h-10 rounded-xl bg-[#1A1A1A] flex items-center justify-center mr-3 text-xl">💊</div>
-          <div className="flex-1">
-            <div className="text-[15px] font-semibold flex items-center">
-              Amlodipine 5mg 
-              <span className="bg-[#FF6B35]/15 text-[#FF6B35] text-[10px] px-1.5 py-0.5 rounded ml-2 font-bold">LOW STOCK</span>
+        {MEDS.map((med, idx) => {
+          const taken = todayMedsTaken[med.id];
+          return (
+            <div
+              key={med.id}
+              onClick={() => toggleTodayMed(med.id)}
+              className={`flex items-center border-t border-white/5 cursor-pointer rounded-xl px-1 transition-colors active:bg-white/5 ${idx === MEDS.length - 1 ? 'pt-3' : 'py-3'}`}
+            >
+              <div className="w-10 h-10 rounded-xl bg-[#1A1A1A] flex items-center justify-center mr-3 text-xl shrink-0">{med.icon}</div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[15px] font-semibold flex items-center flex-wrap gap-1">
+                  {med.name}
+                  {med.stock === 'low' && (
+                    <span className="bg-[#FF6B35]/15 text-[#FF6B35] text-[10px] px-1.5 py-0.5 rounded font-bold">LOW STOCK</span>
+                  )}
+                </div>
+                <div className="text-[13px] text-[#9CA3AF] mt-0.5">{med.time}</div>
+              </div>
+              {med.stock === 'low' && (
+                <button
+                  onClick={e => { e.stopPropagation(); pushScreen({ id: 'med-amlodipine', component: <MedicineDetailScreen medicine={{ brand_name: 'Amlong 5mg', salt_name: 'Amlodipine (5mg)', generic_available: true, brand_price_inr: 45, generic_price_inr: 15, savings_inr: 30, image: null }} /> }); }}
+                  className="bg-[#FF6B35] text-white border-none px-3 py-1.5 rounded-xl text-xs font-semibold ml-2 shrink-0"
+                >REFILL</button>
+              )}
+              <motion.div
+                key={taken ? 'taken' : 'pending'}
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', damping: 12, stiffness: 320 }}
+                className={`w-7 h-7 rounded-full flex items-center justify-center ml-3 shrink-0 ${taken ? 'bg-[#1B8A4A]/20 text-[#1B8A4A]' : 'bg-[#FF6B35]/20 text-[#FF6B35]'}`}
+              >
+                {taken ? <Check size={14} strokeWidth={3} /> : <Clock size={14} strokeWidth={2.5} />}
+              </motion.div>
             </div>
-            <div className="text-[13px] text-[#9CA3AF] mt-0.5">8:00 AM</div>
-          </div>
-          <button
-            onClick={() => pushScreen({ id: 'med-amlodipine', component: <MedicineDetailScreen medicine={{ brand_name: 'Amlong 5mg', salt_name: 'Amlodipine (5mg)', generic_available: true, brand_price_inr: 45, generic_price_inr: 15, savings_inr: 30, image: null }} /> })}
-            className="bg-[#FF6B35] text-white border-none px-3 py-1.5 rounded-xl text-xs font-semibold ml-3"
-          >
-            REFILL
-          </button>
-          <div className="w-6 h-6 rounded-full bg-[#1B8A4A]/20 text-[#1B8A4A] flex items-center justify-center ml-3">
-            <Check size={14} strokeWidth={3} />
-          </div>
-        </div>
-
-        <div className="flex items-center py-3 border-t border-white/5">
-          <div className="w-10 h-10 rounded-xl bg-[#1A1A1A] flex items-center justify-center mr-3 text-xl">💊</div>
-          <div className="flex-1">
-            <div className="text-[15px] font-semibold">Metformin 500mg</div>
-            <div className="text-[13px] text-[#9CA3AF] mt-0.5">2:00 PM</div>
-          </div>
-          <div className="w-6 h-6 rounded-full bg-[#FF6B35]/20 text-[#FF6B35] flex items-center justify-center ml-3">
-            <Clock size={14} strokeWidth={3} />
-          </div>
-        </div>
-
-        <div className="flex items-center pt-3 border-t border-white/5">
-          <div className="w-10 h-10 rounded-xl bg-[#1A1A1A] flex items-center justify-center mr-3 text-xl">💊</div>
-          <div className="flex-1">
-            <div className="text-[15px] font-semibold">Vitamin D3</div>
-            <div className="text-[13px] text-[#9CA3AF] mt-0.5">Night</div>
-          </div>
-          <div className="w-6 h-6 rounded-full bg-[#FF6B35]/20 text-[#FF6B35] flex items-center justify-center ml-3">
-            <Clock size={14} strokeWidth={3} />
-          </div>
-        </div>
+          );
+        })}
       </motion.div>
 
       {/* SECTION 3: WATER INTAKE */}
