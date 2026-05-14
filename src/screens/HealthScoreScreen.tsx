@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, Share, TrendingUp, Check, Clock, Droplet, X } from 'lucide-react';
+import { ChevronLeft, Share, TrendingUp, Check, Clock, Droplet, X, Plus, Minus } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { useNavigation } from '../contexts/NavigationContext';
 import MedicineDetailScreen from './MedicineDetailScreen';
@@ -29,11 +29,40 @@ const DAY_PATTERNS: Record<string, boolean[]> = {
   today: [true,  false, false],
 };
 
+const RESCHEDULE_DATES = [
+  { label: 'Thu', sub: 'May 15' },
+  { label: 'Fri', sub: 'May 16' },
+  { label: 'Sat', sub: 'May 17' },
+  { label: 'Sun', sub: 'May 18' },
+  { label: 'Mon', sub: 'May 19' },
+  { label: 'Tue', sub: 'May 20' },
+  { label: 'Wed', sub: 'May 21' },
+];
+const RESCHEDULE_TIMES = ['9:00 AM', '10:00 AM', '10:30 AM', '11:00 AM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'];
+
+const SLEEP_BARS = [
+  { day: 'M', hPct: 80, hours: 7.2, color: null },
+  { day: 'T', hPct: 60, hours: 5.4, color: '#48CAE4' },
+  { day: 'W', hPct: 90, hours: 8.1, color: null },
+  { day: 'T', hPct: 40, hours: 3.6, color: '#FF6B35' },
+  { day: 'F', hPct: 70, hours: 6.3, color: null },
+  { day: 'S', hPct: 85, hours: 7.65,color: null },
+  { day: 'S', hPct: 50, hours: 4.5, color: '#48CAE4' },
+];
+const SLEEP_AVG_PCT = Math.round(SLEEP_BARS.reduce((s, b) => s + b.hPct, 0) / SLEEP_BARS.length); // 68
+
 export default function HealthScoreScreen({ member }: { member?: any }) {
   const { popScreen, pushScreen } = useNavigation();
   const [currentWater, setCurrentWater] = useState(1400);
   const [activeVitalTab, setActiveVitalTab] = useState<'hr' | 'bp' | 'spo2' | 'sugar'>('hr');
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [showReschedule, setShowReschedule] = useState(false);
+  const [rescheduleDate, setRescheduleDate] = useState<string | null>(null);
+  const [rescheduleTime, setRescheduleTime] = useState<string | null>(null);
+  const [appointmentDisplay, setAppointmentDisplay] = useState('Tomorrow, 10:30 AM');
+  const [rescheduleToast, setRescheduleToast] = useState(false);
+  const [activeSleepBar, setActiveSleepBar] = useState<number | null>(null);
+  const [sleepTarget, setSleepTarget] = useState(7);
   const [todayMedsTaken, setTodayMedsTaken] = useState<Record<string, boolean>>({
     amlodipine: true,
     metformin: false,
@@ -429,7 +458,7 @@ export default function HealthScoreScreen({ member }: { member?: any }) {
           <div>
             <div className="text-base font-semibold">Dr. Dinesh Kumar</div>
             <div className="text-[13px] text-[#9CA3AF] mb-1">Cardiologist</div>
-            <div className="text-[14px] font-medium" style={{ color: color2 }}>Tomorrow, 10:30 AM</div>
+            <div className="text-[14px] font-medium" style={{ color: color2 }}>{appointmentDisplay}</div>
             <div className="text-[12px] text-[#9CA3AF] mt-0.5">JS Global Hospital</div>
           </div>
         </div>
@@ -440,7 +469,10 @@ export default function HealthScoreScreen({ member }: { member?: any }) {
             style={{ backgroundColor: color1 }}
             onClick={() => pushScreen({ id: 'waiting-room-dinesh', component: <WaitingRoomScreen doctor={DR_DINESH} /> })}
           >Join Teleconsult</button>
-          <button className="flex-1 bg-transparent border border-white/20 text-white py-3 rounded-xl font-semibold text-sm">Reschedule</button>
+          <button
+            onClick={() => { setRescheduleDate(null); setRescheduleTime(null); setShowReschedule(true); }}
+            className="flex-1 bg-transparent border border-white/20 text-white py-3 rounded-xl font-semibold text-sm"
+          >Reschedule</button>
         </div>
         
         <div className="bg-[#1A1A1A] rounded-xl p-3">
@@ -645,39 +677,82 @@ export default function HealthScoreScreen({ member }: { member?: any }) {
           <div className="flex items-center gap-1.5 text-xs"><div className="w-2 h-2 rounded-full bg-[#48CAE4]" />Light 3.7h</div>
         </div>
         
-        <div className="flex items-end justify-between h-[60px] mb-4 gap-1">
-          <div className="flex flex-col items-center gap-1 flex-1">
-            <div className="w-full max-w-[24px] rounded" style={{ height: '80%', backgroundColor: color1 }} />
-            <div className="text-[10px] text-[#9CA3AF]">M</div>
+        {/* Bar chart with avg line + tappable bars */}
+        <div className="relative mb-1" style={{ height: 76 }}>
+          {/* 7-day average dashed line */}
+          <div
+            className="absolute left-0 right-0 border-t border-dashed border-[#9CA3AF]/40 pointer-events-none z-10"
+            style={{ bottom: `${SLEEP_AVG_PCT * 0.6}px` }}
+          >
+            <span className="absolute right-0 -top-4 text-[9px] text-[#9CA3AF]/70 font-medium">avg 6.1h</span>
           </div>
-          <div className="flex flex-col items-center gap-1 flex-1">
-            <div className="w-full max-w-[24px] rounded bg-[#48CAE4]" style={{ height: '60%' }} />
-            <div className="text-[10px] text-[#9CA3AF]">T</div>
+
+          {/* Bars */}
+          <div className="absolute bottom-[16px] left-0 right-0 flex items-end justify-between gap-1 h-[60px]">
+            {SLEEP_BARS.map((bar, i) => (
+              <div key={i} className="flex flex-col items-center flex-1 h-full justify-end relative">
+                {activeSleepBar === i && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#1A1A24] border border-white/10 rounded px-1.5 py-0.5 text-[9px] font-bold text-white whitespace-nowrap z-20"
+                  >
+                    {bar.hours}h
+                  </motion.div>
+                )}
+                <button
+                  onClick={() => setActiveSleepBar(i === activeSleepBar ? null : i)}
+                  className="w-full max-w-[22px] rounded transition-opacity"
+                  style={{
+                    height: `${bar.hPct}%`,
+                    backgroundColor: bar.color ?? color1,
+                    opacity: activeSleepBar !== null && activeSleepBar !== i ? 0.35 : 1,
+                  }}
+                />
+              </div>
+            ))}
           </div>
-          <div className="flex flex-col items-center gap-1 flex-1">
-            <div className="w-full max-w-[24px] rounded" style={{ height: '90%', backgroundColor: color1 }} />
-            <div className="text-[10px] text-[#9CA3AF]">W</div>
-          </div>
-          <div className="flex flex-col items-center gap-1 flex-1">
-            <div className="w-full max-w-[24px] rounded bg-[#FF6B35]" style={{ height: '40%' }} />
-            <div className="text-[10px] text-[#9CA3AF]">T</div>
-          </div>
-          <div className="flex flex-col items-center gap-1 flex-1">
-            <div className="w-full max-w-[24px] rounded" style={{ height: '70%', backgroundColor: color1 }} />
-            <div className="text-[10px] text-[#9CA3AF]">F</div>
-          </div>
-          <div className="flex flex-col items-center gap-1 flex-1">
-            <div className="w-full max-w-[24px] rounded" style={{ height: '85%', backgroundColor: color1 }} />
-            <div className="text-[10px] text-[#9CA3AF]">S</div>
-          </div>
-          <div className="flex flex-col items-center gap-1 flex-1">
-            <div className="w-full max-w-[24px] rounded bg-[#48CAE4]" style={{ height: '50%' }} />
-            <div className="text-[10px] text-[#9CA3AF]">S</div>
+
+          {/* Day labels */}
+          <div className="absolute bottom-0 left-0 right-0 flex justify-between gap-1">
+            {SLEEP_BARS.map((bar, i) => (
+              <div key={i} className="flex-1 flex justify-center">
+                <span className="text-[10px] text-[#9CA3AF]">{bar.day}</span>
+              </div>
+            ))}
           </div>
         </div>
-        
-        <div className="text-[13px] text-[#9CA3AF] text-center">
-          "You slept 1.2 hours less than your weekly average last night."
+
+        {/* Tonight's target stepper */}
+        <div className="flex items-center justify-between pt-4 border-t border-white/5 mt-2">
+          <div>
+            <div className="text-[14px] font-semibold">Tonight's Target</div>
+            <div className="text-[12px] text-[#9CA3AF] mt-0.5">Tap ± to adjust</div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSleepTarget(t => Math.max(4, parseFloat((t - 0.5).toFixed(1))))}
+              className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center active:scale-90 transition-transform"
+            >
+              <Minus size={14} />
+            </button>
+            <motion.span
+              key={sleepTarget}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', damping: 12, stiffness: 300 }}
+              className="text-[20px] font-bold w-14 text-center"
+            >
+              {sleepTarget}h
+            </motion.span>
+            <button
+              onClick={() => setSleepTarget(t => Math.min(10, parseFloat((t + 0.5).toFixed(1))))}
+              className="w-8 h-8 rounded-full flex items-center justify-center active:scale-90 transition-transform"
+              style={{ backgroundColor: color1 }}
+            >
+              <Plus size={14} />
+            </button>
+          </div>
         </div>
       </motion.div>
 
@@ -762,6 +837,112 @@ export default function HealthScoreScreen({ member }: { member?: any }) {
               ))}
             </div>
           </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+
+    {/* RESCHEDULE BOTTOM SHEET */}
+    <AnimatePresence>
+      {showReschedule && (
+        <motion.div
+          key="reschedule-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex flex-col justify-end"
+          style={{ maxWidth: 390, margin: '0 auto' }}
+          onClick={() => setShowReschedule(false)}
+        >
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 28, stiffness: 280 }}
+            className="relative bg-[#141414] rounded-t-[28px] border-t border-white/10 p-6 pb-10"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5" />
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-bold">Reschedule</h3>
+              <button onClick={() => setShowReschedule(false)} className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Date chips */}
+            <p className="text-[12px] text-[#9CA3AF] uppercase tracking-wider font-semibold mb-3">Select Date</p>
+            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 mb-5">
+              {RESCHEDULE_DATES.map(d => {
+                const active = rescheduleDate === d.sub;
+                return (
+                  <button
+                    key={d.sub}
+                    onClick={() => setRescheduleDate(d.sub)}
+                    className="flex flex-col items-center shrink-0 w-14 py-2 rounded-2xl border transition-colors"
+                    style={{
+                      borderColor: active ? color1 : 'rgba(255,255,255,0.1)',
+                      background: active ? `${color1}22` : 'transparent',
+                    }}
+                  >
+                    <span className="text-[11px] text-[#9CA3AF]">{d.label}</span>
+                    <span className={`text-[13px] font-bold mt-0.5 ${active ? 'text-white' : 'text-[#D1D5DB]'}`}>{d.sub.split(' ')[1]}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Time slots */}
+            <p className="text-[12px] text-[#9CA3AF] uppercase tracking-wider font-semibold mb-3">Select Time</p>
+            <div className="grid grid-cols-4 gap-2 mb-6">
+              {RESCHEDULE_TIMES.map(t => {
+                const active = rescheduleTime === t;
+                return (
+                  <button
+                    key={t}
+                    onClick={() => setRescheduleTime(t)}
+                    className="py-2 rounded-xl border text-[13px] font-medium transition-colors"
+                    style={{
+                      borderColor: active ? color1 : 'rgba(255,255,255,0.1)',
+                      background: active ? `${color1}22` : 'rgba(255,255,255,0.03)',
+                      color: active ? 'white' : '#9CA3AF',
+                    }}
+                  >
+                    {t}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Confirm */}
+            <button
+              disabled={!rescheduleDate || !rescheduleTime}
+              onClick={() => {
+                setAppointmentDisplay(`${rescheduleDate}, ${rescheduleTime}`);
+                setShowReschedule(false);
+                setRescheduleToast(true);
+                setTimeout(() => setRescheduleToast(false), 2800);
+              }}
+              className="w-full py-3.5 rounded-2xl font-bold text-white text-base transition-opacity disabled:opacity-35"
+              style={{ background: `linear-gradient(135deg, ${color1}, ${color2})` }}
+            >
+              Confirm Reschedule
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+
+    {/* Reschedule confirmed toast */}
+    <AnimatePresence>
+      {rescheduleToast && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[60] bg-[#1A1A2E] border border-white/15 rounded-2xl px-5 py-3 shadow-xl whitespace-nowrap"
+        >
+          <p className="text-sm text-white font-medium">✅ Appointment rescheduled</p>
         </motion.div>
       )}
     </AnimatePresence>
