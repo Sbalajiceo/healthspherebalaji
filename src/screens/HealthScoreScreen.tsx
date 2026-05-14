@@ -5,6 +5,15 @@ import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianG
 import { useNavigation } from '../contexts/NavigationContext';
 import MedicineDetailScreen from './MedicineDetailScreen';
 import RecordsScreen from './RecordsScreen';
+import WaitingRoomScreen from './WaitingRoomScreen';
+
+const DR_DINESH = {
+  name: 'Dr. Dinesh Kumar',
+  initials: 'DK',
+  spec: 'Cardiologist',
+  hospital: 'JS Global Hospital',
+  appointmentTime: 'Tomorrow, 10:30 AM',
+};
 
 const MEDS = [
   { id: 'amlodipine', name: 'Amlodipine 5mg',  dose: '5mg',  time: '8:00 AM', icon: '💊', stock: 'low'  },
@@ -412,7 +421,11 @@ export default function HealthScoreScreen({ member }: { member?: any }) {
         </div>
         
         <div className="flex gap-3 mb-5">
-          <button className="flex-1 text-white py-3 rounded-xl font-semibold text-sm" style={{ backgroundColor: color1 }}>Join Teleconsult</button>
+          <button
+            className="flex-1 text-white py-3 rounded-xl font-semibold text-sm"
+            style={{ backgroundColor: color1 }}
+            onClick={() => pushScreen({ id: 'waiting-room-dinesh', component: <WaitingRoomScreen doctor={DR_DINESH} /> })}
+          >Join Teleconsult</button>
           <button className="flex-1 bg-transparent border border-white/20 text-white py-3 rounded-xl font-semibold text-sm">Reschedule</button>
         </div>
         

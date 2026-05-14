@@ -48,9 +48,9 @@ export default function ChatScreen({ doctor }: { doctor: any }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0F] text-white flex flex-col font-sans">
+    <div className="h-full w-full bg-[#0A0A0F] text-white flex flex-col font-sans overflow-hidden">
       {/* Header */}
-      <header className="bg-[#13131A] border-b border-white/10 px-4 py-3 flex items-center justify-between sticky top-0 z-50">
+      <header className="bg-[#13131A] border-b border-white/10 px-4 py-3 flex items-center justify-between shrink-0 z-10">
         <div className="flex items-center gap-3">
           <button onClick={popScreen} className="w-10 h-10 rounded-full hover:bg-white/5 flex items-center justify-center -ml-2">
             <ChevronLeft size={24} />
@@ -119,7 +119,7 @@ export default function ChatScreen({ doctor }: { doctor: any }) {
       </div>
 
       {/* Input Area */}
-      <div className="p-3 bg-[#13131A] border-t border-white/10 flex items-center gap-2">
+      <div className="p-3 bg-[#13131A] border-t border-white/10 flex items-center gap-2 shrink-0">
         <button className="w-10 h-10 rounded-full hover:bg-white/5 flex items-center justify-center text-[#8B8FA8]">
           <Paperclip size={20} />
         </button>
