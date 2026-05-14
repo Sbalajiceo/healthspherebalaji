@@ -1,15 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
-import { ChevronLeft, Share, TrendingUp, Check, Clock, Droplet } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ChevronLeft, Share, TrendingUp, Check, Clock, Droplet, X } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { useNavigation } from '../contexts/NavigationContext';
 import MedicineDetailScreen from './MedicineDetailScreen';
 import RecordsScreen from './RecordsScreen';
 
+const MEDS = [
+  { id: 'amlodipine', name: 'Amlodipine 5mg',  dose: '5mg',  time: '8:00 AM', icon: '💊', stock: 'low'  },
+  { id: 'metformin',  name: 'Metformin 500mg', dose: '500mg', time: '2:00 PM', icon: '💊', stock: 'ok'   },
+  { id: 'vitamind',   name: 'Vitamin D3',       dose: '60K IU',time: 'Night',   icon: '💊', stock: 'ok'   },
+];
+
+// per-day taken pattern: index → [amlodipine taken, metformin taken, vitamind taken]
+const DAY_PATTERNS: Record<string, boolean[]> = {
+  t:     [true,  true,  true ],
+  p:     [true,  false, false],
+  r:     [false, false, false],
+  today: [true,  false, false],
+};
+
 export default function HealthScoreScreen({ member }: { member?: any }) {
   const { popScreen, pushScreen } = useNavigation();
   const [currentWater, setCurrentWater] = useState(1400);
   const [activeVitalTab, setActiveVitalTab] = useState<'hr' | 'bp' | 'spo2' | 'sugar'>('hr');
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const maxWater = 2500;
 
   const defaultMember = { name: 'Sandeep', score: 78, color: 'from-[#0A8B8B] to-[#02C39A]' };
@@ -56,17 +71,24 @@ export default function HealthScoreScreen({ member }: { member?: any }) {
     let bgStyle: any = {};
     let textClass = 'text-white';
     let borderClass = '';
-    
+    const isFuture = status === 'f';
+
     if (status === 't') bgStyle = { backgroundColor: color1 };
     else if (status === 'p') bgStyle = { background: 'linear-gradient(to bottom right, #FF6B35, #1A1A1A)' };
     else if (status === 'r') bgStyle = { backgroundColor: '#E53E3E' };
     else if (status === 'today') { bgStyle = { backgroundColor: color1 }; borderClass = 'border-2 border-white'; }
-    else if (status === 'f') { borderClass = 'border border-[#333]'; textClass = 'text-[#9CA3AF]'; }
+    else if (isFuture) { borderClass = 'border border-[#333]'; textClass = 'text-[#9CA3AF]'; }
 
     return (
-      <div key={index} className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium mx-auto ${textClass} ${borderClass}`} style={bgStyle}>
+      <button
+        key={index}
+        disabled={isFuture}
+        onClick={() => !isFuture && setSelectedDay(index)}
+        className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium mx-auto ${textClass} ${borderClass} ${!isFuture ? 'active:scale-90 transition-transform' : ''}`}
+        style={bgStyle}
+      >
         {index + 1}
-      </div>
+      </button>
     );
   };
 
@@ -75,7 +97,19 @@ export default function HealthScoreScreen({ member }: { member?: any }) {
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
   };
 
+  // Compute bottom-sheet data when a day is selected
+  const sheetData = selectedDay !== null ? (() => {
+    const status = calendarDays[selectedDay];
+    const pattern = DAY_PATTERNS[status] ?? [false, false, false];
+    const dayMeds = MEDS.map((m, i) => ({ ...m, taken: pattern[i] }));
+    const allTaken = dayMeds.every(m => m.taken);
+    const noneTaken = dayMeds.every(m => !m.taken);
+    const label = allTaken ? 'All taken ✅' : noneTaken ? 'All missed ❌' : 'Partial adherence ⚠️';
+    return { dayMeds, label };
+  })() : null;
+
   return (
+    <>
     <div className="min-h-full w-full bg-[#0A0A0A] text-white pb-10 font-sans">
       <style>{`
         @keyframes wave { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
@@ -621,5 +655,89 @@ export default function HealthScoreScreen({ member }: { member?: any }) {
       </motion.div>
 
     </div>
+
+    {/* DAY MEDICATION DETAIL BOTTOM SHEET */}
+    <AnimatePresence>
+      {selectedDay !== null && sheetData && (
+        <motion.div
+          key="day-med-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex flex-col justify-end"
+          style={{ maxWidth: 390, margin: '0 auto' }}
+          onClick={() => setSelectedDay(null)}
+        >
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 28, stiffness: 280 }}
+            className="relative bg-[#141414] rounded-t-[28px] border-t border-white/10 p-6 pb-10"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* drag handle */}
+            <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5" />
+
+            {/* header */}
+            <div className="flex items-start justify-between mb-1">
+              <div>
+                <h3 className="text-lg font-bold">May {selectedDay + 1}</h3>
+                <p className="text-[13px] text-[#9CA3AF] mt-0.5">{sheetData.label}</p>
+              </div>
+              <button
+                onClick={() => setSelectedDay(null)}
+                className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* med cards */}
+            <div className="flex flex-col gap-3 mt-5">
+              {sheetData.dayMeds.map(med => (
+                <div
+                  key={med.id}
+                  className="flex items-center p-4 rounded-2xl border"
+                  style={{
+                    background: med.taken
+                      ? 'linear-gradient(135deg, rgba(27,138,74,0.18), rgba(2,195,154,0.08))'
+                      : 'linear-gradient(135deg, rgba(229,62,62,0.18), rgba(255,107,53,0.08))',
+                    borderColor: med.taken ? 'rgba(27,138,74,0.35)' : 'rgba(229,62,62,0.35)',
+                  }}
+                >
+                  <div className="w-11 h-11 rounded-2xl bg-[#1A1A1A] flex items-center justify-center mr-3 text-xl shrink-0">
+                    {med.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[15px] font-semibold flex items-center gap-2">
+                      {med.name}
+                      {med.stock === 'low' && (
+                        <span className="bg-[#FF6B35]/15 text-[#FF6B35] text-[10px] px-1.5 py-0.5 rounded font-bold">LOW STOCK</span>
+                      )}
+                    </div>
+                    <div className="text-[13px] text-[#9CA3AF] mt-0.5">{med.dose} · {med.time}</div>
+                  </div>
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center ml-3 shrink-0"
+                    style={{
+                      background: med.taken ? 'rgba(27,138,74,0.2)' : 'rgba(229,62,62,0.2)',
+                      color: med.taken ? '#1B8A4A' : '#E53E3E',
+                    }}
+                  >
+                    {med.taken
+                      ? <Check size={16} strokeWidth={3} />
+                      : <X size={16} strokeWidth={2.5} />
+                    }
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+    </>
   );
 }
