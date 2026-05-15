@@ -103,7 +103,7 @@ export default function GlobalSearchScreen() {
   const sliceAll      = (arr: any[]) => activeTab === 'all' ? arr.slice(0, 3) : arr;
 
   return (
-    <div className="min-h-screen bg-[#0A0A0F] text-white flex flex-col">
+    <div className="h-full w-full bg-[#0A0A0F] text-white flex flex-col">
       {/* Sticky header */}
       <div className="sticky top-0 z-40 bg-[#0A0A0F]/95 backdrop-blur-md px-4 pt-5 pb-3 border-b border-white/5">
         <div className="flex items-center gap-3">

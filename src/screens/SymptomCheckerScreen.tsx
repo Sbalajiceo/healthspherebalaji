@@ -58,7 +58,7 @@ export default function SymptomCheckerScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0F] text-white flex flex-col">
+    <div className="h-full w-full bg-[#0A0A0F] text-white flex flex-col">
       {/* Header */}
       <div className="sticky top-0 z-40 bg-[#0A0A0F]/80 backdrop-blur-md px-4 py-4 flex items-center border-b border-white/5">
         <button onClick={popScreen} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center mr-3">
@@ -74,7 +74,7 @@ export default function SymptomCheckerScreen() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4 pb-36 no-scrollbar">
+      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4 no-scrollbar">
         <AnimatePresence initial={false}>
           {messages.map((msg) => (
             <motion.div
@@ -174,7 +174,7 @@ export default function SymptomCheckerScreen() {
       </div>
 
       {/* Input Bar */}
-      <div className="fixed bottom-0 left-0 right-0 max-w-[390px] mx-auto px-4 pb-6 pt-3 bg-gradient-to-t from-[#0A0A0F] via-[#0A0A0F]/95 to-transparent">
+      <div className="shrink-0 px-4 pb-6 pt-3 bg-[#0A0A0F] border-t border-white/5">
         <div className="flex items-end gap-3 glass-card rounded-2xl px-4 py-3 border border-white/10">
           <textarea
             value={input}
