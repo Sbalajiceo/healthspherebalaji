@@ -18,6 +18,7 @@ import { CartProvider } from './contexts/CartContext';
 import { AppointmentsProvider } from './contexts/AppointmentsContext';
 import { OrdersProvider } from './contexts/OrdersContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { AuthProvider } from './contexts/AuthContext';
 
 function MainApp() {
   const [activeTab, setActiveTab] = useState('home');
@@ -81,17 +82,19 @@ function AppRoot() {
 export default function App() {
   return (
     <ThemeProvider>
-      <NavigationProvider>
-        <CartProvider>
-          <OrdersProvider>
-            <AppointmentsProvider>
-              <ReminderProvider>
-                <AppRoot />
-              </ReminderProvider>
-            </AppointmentsProvider>
-          </OrdersProvider>
-        </CartProvider>
-      </NavigationProvider>
+      <AuthProvider>
+        <NavigationProvider>
+          <CartProvider>
+            <OrdersProvider>
+              <AppointmentsProvider>
+                <ReminderProvider>
+                  <AppRoot />
+                </ReminderProvider>
+              </AppointmentsProvider>
+            </OrdersProvider>
+          </CartProvider>
+        </NavigationProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

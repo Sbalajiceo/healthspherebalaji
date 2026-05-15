@@ -1,4 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useAuth } from './AuthContext';
+import { isFirebaseConfigured } from '../lib/firebase';
+import { subscribeToCollection, writeToCollection } from '../services/firestoreService';
 
 export interface OrderItem {
   id: string | number;
@@ -27,14 +30,25 @@ interface OrdersContextType {
 const OrdersContext = createContext<OrdersContextType | null>(null);
 
 export function OrdersProvider({ children }: { children: React.ReactNode }) {
+  const { userId } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
+    if (isFirebaseConfigured) {
+      // Real-time Firestore subscription — unsubscribes on unmount / userId change
+      return subscribeToCollection<Order>(userId, 'orders', setOrders, 'placedAt');
+    }
+    // localStorage fallback
     const saved = localStorage.getItem('orders');
     if (saved) setOrders(JSON.parse(saved));
-  }, []);
+  }, [userId]);
 
-  const addOrder = (items: OrderItem[], subtotal: number, taxes: number, total: number): string => {
+  const addOrder = (
+    items: OrderItem[],
+    subtotal: number,
+    taxes: number,
+    total: number
+  ): string => {
     const orderId = String(Math.floor(Math.random() * 900000) + 100000);
     const newOrder: Order = {
       id: Date.now().toString(),
@@ -46,11 +60,18 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
       placedAt: new Date().toISOString(),
       status: 'Processing',
     };
-    setOrders(prev => {
-      const updated = [newOrder, ...prev];
-      localStorage.setItem('orders', JSON.stringify(updated));
-      return updated;
-    });
+
+    if (isFirebaseConfigured) {
+      writeToCollection(userId, 'orders', newOrder);
+      // onSnapshot listener updates state automatically via latency compensation
+    } else {
+      setOrders((prev) => {
+        const updated = [newOrder, ...prev];
+        localStorage.setItem('orders', JSON.stringify(updated));
+        return updated;
+      });
+    }
+
     return orderId;
   };
 
