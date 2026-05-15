@@ -118,7 +118,7 @@ export default function GlobalSearchScreen() {
               value={query}
               onChange={e => { setQuery(e.target.value); setActiveTab('all'); }}
               placeholder="Search doctors, medicines, labs..."
-              className="bg-transparent border-none outline-none flex-1 text-sm text-white placeholder:text-[#8B8FA8]"
+              className="bg-transparent border-none outline-none flex-1 text-base text-white placeholder:text-[#8B8FA8]"
             />
             {query && (
               <button onClick={() => setQuery('')} className="ml-2 p-1">

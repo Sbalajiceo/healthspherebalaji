@@ -182,7 +182,7 @@ export default function SymptomCheckerScreen() {
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
             placeholder="Describe your symptoms..."
             rows={1}
-            className="flex-1 bg-transparent text-sm text-white placeholder-[#8B8FA8] resize-none outline-none leading-5 max-h-28 overflow-y-auto"
+            className="flex-1 bg-transparent text-base text-white placeholder-[#8B8FA8] resize-none outline-none leading-5 max-h-28 overflow-y-auto"
             style={{ minHeight: '20px' }}
           />
           <motion.button
