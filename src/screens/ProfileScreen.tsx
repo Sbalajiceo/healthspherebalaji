@@ -1,7 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { User, Users, Smartphone, CreditCard, Settings, HelpCircle, LogOut, ChevronRight, Activity, ArrowLeft, ShoppingBag } from 'lucide-react';
+import {
+  User, Users, Smartphone, CreditCard, Settings, HelpCircle,
+  LogOut, ChevronRight, Activity, ArrowLeft, ShoppingBag,
+} from 'lucide-react';
 import { useNavigation } from '../contexts/NavigationContext';
+import { useAuth } from '../contexts/AuthContext';
+import { loadUserProfile, type UserProfile } from '../services/firestoreService';
 import PersonalInformationScreen from './profile/PersonalInformationScreen';
 import FamilyMembersScreen from './profile/FamilyMembersScreen';
 import LinkedDevicesScreen from './profile/LinkedDevicesScreen';
@@ -12,19 +17,39 @@ import OrdersScreen from './OrdersScreen';
 
 export default function ProfileScreen() {
   const { popScreen, pushScreen } = useNavigation();
+  const { user, userId, signOut }  = useAuth();
+  const [profile, setProfile]      = useState<UserProfile | null>(null);
+  const [signingOut, setSigningOut] = useState(false);
 
-  const handleNavigation = (id: string, component: React.ReactNode) => {
-    pushScreen({ id, component });
+  useEffect(() => {
+    if (userId !== 'local_user') {
+      loadUserProfile(userId).then(setProfile);
+    }
+  }, [userId]);
+
+  // Derive display name and contact from Firebase user + Firestore profile
+  const displayName = user?.displayName || profile?.name || 'HealthSphere User';
+  const contactLine = user?.phoneNumber
+    ? user.phoneNumber
+    : user?.email ?? profile?.email ?? '';
+
+  const handleSignOut = async () => {
+    setSigningOut(true);
+    await signOut();
+    // AuthContext clears user → App.tsx shows WelcomeScreen automatically
   };
 
+  const handleNavigation = (id: string, component: React.ReactNode) =>
+    pushScreen({ id, component });
+
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="px-4 py-6 space-y-6 pb-32"
     >
       <div className="flex items-center mb-6">
-        <button 
+        <button
           onClick={popScreen}
           className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center mr-4"
         >
@@ -33,19 +58,23 @@ export default function ProfileScreen() {
         <h1 className="font-display text-2xl font-bold">Profile</h1>
       </div>
 
+      {/* Avatar + name */}
       <header className="flex flex-col items-center text-center">
         <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#6C63FF] to-[#00D4AA] p-1 mb-4 shadow-[0_0_30px_rgba(108,99,255,0.3)]">
           <div className="w-full h-full rounded-full bg-[#13131A] flex items-center justify-center overflow-hidden">
-            <img 
-              src="https://picsum.photos/seed/sandeep/200/200"
-              alt="Profile" 
-              className="w-full h-full object-cover"
-              referrerPolicy="no-referrer"
-            />
+            {user?.photoURL ? (
+              <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+            ) : (
+              <span className="font-display text-3xl font-bold text-white select-none">
+                {displayName.charAt(0).toUpperCase()}
+              </span>
+            )}
           </div>
         </div>
-        <h1 className="font-display text-2xl font-bold">Sandeep Balaji</h1>
-        <p className="text-[#8B8FA8] text-sm mt-1">26 yrs • Male • O+</p>
+        <h1 className="font-display text-2xl font-bold">{displayName}</h1>
+        {contactLine && (
+          <p className="text-[#8B8FA8] text-sm mt-1">{contactLine}</p>
+        )}
       </header>
 
       {/* Health Score Widget */}
@@ -68,21 +97,21 @@ export default function ProfileScreen() {
       {/* Options List */}
       <div className="space-y-3">
         {[
-          { icon: ShoppingBag, label: 'My Orders', color: 'text-[#84CC16]', id: 'orders', component: <OrdersScreen /> },
-          { icon: User, label: 'Personal Information', color: 'text-[#6C63FF]', id: 'personal-info', component: <PersonalInformationScreen /> },
-          { icon: Users, label: 'Family Members', color: 'text-[#00D4AA]', id: 'family-members', component: <FamilyMembersScreen /> },
-          { icon: Smartphone, label: 'Linked Devices', color: 'text-[#FFB347]', id: 'linked-devices', component: <LinkedDevicesScreen /> },
-          { icon: CreditCard, label: 'Payment Methods', color: 'text-[#FF6B9D]', id: 'payment-methods', component: <PaymentMethodsScreen /> },
-          { icon: Settings, label: 'Settings & Privacy', color: 'text-[#A8FF78]', id: 'settings-privacy', component: <SettingsPrivacyScreen /> },
-          { icon: HelpCircle, label: 'Help & Support', color: 'text-[#8B8FA8]', id: 'help-support', component: <HelpSupportScreen /> },
+          { icon: ShoppingBag,  label: 'My Orders',             color: 'text-[#84CC16]', id: 'orders',          component: <OrdersScreen /> },
+          { icon: User,         label: 'Personal Information',  color: 'text-[#6C63FF]', id: 'personal-info',   component: <PersonalInformationScreen /> },
+          { icon: Users,        label: 'Family Members',        color: 'text-[#00D4AA]', id: 'family-members',  component: <FamilyMembersScreen /> },
+          { icon: Smartphone,   label: 'Linked Devices',        color: 'text-[#FFB347]', id: 'linked-devices',  component: <LinkedDevicesScreen /> },
+          { icon: CreditCard,   label: 'Payment Methods',       color: 'text-[#FF6B9D]', id: 'payment-methods', component: <PaymentMethodsScreen /> },
+          { icon: Settings,     label: 'Settings & Privacy',    color: 'text-[#A8FF78]', id: 'settings-privacy',component: <SettingsPrivacyScreen /> },
+          { icon: HelpCircle,   label: 'Help & Support',        color: 'text-[#8B8FA8]', id: 'help-support',    component: <HelpSupportScreen /> },
         ].map((item, i) => (
-          <button 
+          <button
             key={i}
             onClick={() => handleNavigation(item.id, item.component)}
             className="w-full glass-card p-4 rounded-2xl flex items-center justify-between hover:bg-white/5 transition-colors"
           >
             <div className="flex items-center">
-              <div className={`w-10 h-10 rounded-full bg-white/5 flex items-center justify-center mr-4`}>
+              <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center mr-4">
                 <item.icon size={20} className={item.color} />
               </div>
               <span className="font-bold text-sm">{item.label}</span>
@@ -93,8 +122,17 @@ export default function ProfileScreen() {
       </div>
 
       {/* Sign Out */}
-      <button className="w-full py-4 rounded-2xl font-bold text-sm text-[#FF6B6B] bg-[#FF6B6B]/10 border border-[#FF6B6B]/20 hover:bg-[#FF6B6B]/20 transition-colors flex items-center justify-center mt-8">
-        <LogOut size={18} className="mr-2" /> Sign Out
+      <button
+        onClick={handleSignOut}
+        disabled={signingOut}
+        className="w-full py-4 rounded-2xl font-bold text-sm text-[#FF6B6B] bg-[#FF6B6B]/10 border border-[#FF6B6B]/20 hover:bg-[#FF6B6B]/20 transition-colors flex items-center justify-center mt-8 disabled:opacity-50"
+      >
+        {signingOut ? (
+          <div className="w-4 h-4 border-2 border-[#FF6B6B] border-t-transparent rounded-full animate-spin mr-2" />
+        ) : (
+          <LogOut size={18} className="mr-2" />
+        )}
+        {signingOut ? 'Signing out…' : 'Sign Out'}
       </button>
     </motion.div>
   );

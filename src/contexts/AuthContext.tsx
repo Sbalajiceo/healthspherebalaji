@@ -1,50 +1,53 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { type User, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { type User, signOut as fbSignOut, onAuthStateChanged } from 'firebase/auth';
 import { auth, isFirebaseConfigured } from '../lib/firebase';
 
 interface AuthContextType {
   user: User | null;
-  /** Firestore userId, or 'local_user' when Firebase is not configured */
   userId: string;
   loading: boolean;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   userId: 'local_user',
   loading: false,
+  signOut: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser]       = useState<User | null>(null);
-  const [loading, setLoading] = useState(isFirebaseConfigured);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!isFirebaseConfigured || !auth) {
       setLoading(false);
       return;
     }
-
-    return onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser);
-        setLoading(false);
-      } else {
-        // Anonymous auth keeps a stable userId across sessions.
-        // Replace with email/Google sign-in when adding a login screen.
-        try {
-          await signInAnonymously(auth!);
-        } catch (err) {
-          console.error('[Auth] Anonymous sign-in failed:', err);
-          setLoading(false);
-        }
-      }
+    // Firebase persists sessions — onAuthStateChanged resolves immediately from cache
+    return onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+      setLoading(false);
     });
   }, []);
 
+  const signOut = async () => {
+    if (auth) await fbSignOut(auth);
+    setUser(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#6C63FF] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    <AuthContext.Provider value={{ user, userId: user?.uid ?? 'local_user', loading }}>
-      {loading ? null : children}
+    <AuthContext.Provider value={{ user, userId: user?.uid ?? 'local_user', loading, signOut }}>
+      {children}
     </AuthContext.Provider>
   );
 }

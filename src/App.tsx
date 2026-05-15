@@ -12,13 +12,14 @@ import MedicinesScreen from './screens/MedicinesScreen';
 import RecordsScreen from './screens/RecordsScreen';
 import WellnessScreen from './screens/WellnessScreen';
 import OnboardingScreen from './screens/OnboardingScreen';
+import WelcomeScreen from './screens/WelcomeScreen';
 import { NavigationProvider, useNavigation } from './contexts/NavigationContext';
 import { ReminderProvider } from './contexts/ReminderContext';
 import { CartProvider } from './contexts/CartContext';
 import { AppointmentsProvider } from './contexts/AppointmentsContext';
 import { OrdersProvider } from './contexts/OrdersContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 function MainApp() {
   const [activeTab, setActiveTab] = useState('home');
@@ -34,11 +35,11 @@ function MainApp() {
 
         <main className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar relative z-10 pb-[90px]">
           <AnimatePresence mode="wait">
-            {activeTab === 'home' && <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><HomeScreen setActiveTab={setActiveTab} /></motion.div>}
-            {activeTab === 'consult' && <motion.div key="consult" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ConsultScreen /></motion.div>}
+            {activeTab === 'home'      && <motion.div key="home"      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><HomeScreen setActiveTab={setActiveTab} /></motion.div>}
+            {activeTab === 'consult'   && <motion.div key="consult"   initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><ConsultScreen /></motion.div>}
             {activeTab === 'medicines' && <motion.div key="medicines" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><MedicinesScreen /></motion.div>}
-            {activeTab === 'records' && <motion.div key="records" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><RecordsScreen /></motion.div>}
-            {activeTab === 'wellness' && <motion.div key="wellness" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><WellnessScreen /></motion.div>}
+            {activeTab === 'records'   && <motion.div key="records"   initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><RecordsScreen /></motion.div>}
+            {activeTab === 'wellness'  && <motion.div key="wellness"  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><WellnessScreen /></motion.div>}
           </AnimatePresence>
         </main>
 
@@ -70,12 +71,11 @@ function MainApp() {
 }
 
 function AppRoot() {
+  const { user } = useAuth();
   const [onboarded, setOnboarded] = useState(() => !!localStorage.getItem('hs_onboarded'));
 
-  if (!onboarded) {
-    return <OnboardingScreen onComplete={() => setOnboarded(true)} />;
-  }
-
+  if (!user) return <WelcomeScreen />;
+  if (!onboarded) return <OnboardingScreen onComplete={() => setOnboarded(true)} />;
   return <MainApp />;
 }
 

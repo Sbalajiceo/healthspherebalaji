@@ -64,6 +64,30 @@ export function writeCart<T>(userId: string, items: T[]): Promise<void> {
   return setDoc(doc(db, 'users', userId, 'cart', 'current'), { items });
 }
 
+// ── User profile document ─────────────────────────────────────────────────────
+
+export interface UserProfile {
+  name?: string;
+  email?: string;
+  phone?: string;
+  createdAt?: string;
+  lastLoginAt?: string;
+}
+
+export async function loadUserProfile(userId: string): Promise<UserProfile | null> {
+  if (!db) return null;
+  const snap = await getDoc(doc(db, 'users', userId));
+  return snap.exists() ? (snap.data() as UserProfile) : null;
+}
+
+export function saveUserProfile(userId: string, profile: UserProfile): Promise<void> {
+  if (!db) return Promise.resolve();
+  return setDoc(doc(db, 'users', userId), {
+    ...profile,
+    lastLoginAt: new Date().toISOString(),
+  }, { merge: true });
+}
+
 // ── Settings document ─────────────────────────────────────────────────────────
 
 export async function loadSettings<T>(userId: string): Promise<T | null> {

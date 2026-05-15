@@ -26,58 +26,50 @@ const CartContext = createContext<CartContextType | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const { userId } = useAuth();
-  const [items, setItems]     = useState<CartItem[]>([]);
-  const syncTimer             = useRef<ReturnType<typeof setTimeout>>();
-  const skipSync              = useRef(false); // prevents writing back what Firestore just loaded
+  const [items, setItems]  = useState<CartItem[]>([]);
+  const syncTimer          = useRef<ReturnType<typeof setTimeout>>();
+  const skipSync           = useRef(false);
 
-  // Load persisted cart once on mount (or when userId changes)
+  // Load from Firestore on mount / userId change; clear on sign-out
   useEffect(() => {
-    if (!isFirebaseConfigured) return;
+    setItems([]);
+    if (!isFirebaseConfigured || userId === 'local_user') return;
     loadCart<CartItem>(userId).then((saved) => {
-      if (saved.length) {
-        skipSync.current = true;
-        setItems(saved);
-      }
+      if (saved.length) { skipSync.current = true; setItems(saved); }
     });
   }, [userId]);
 
-  // Debounced sync to Firestore on every items change
+  // Debounced Firestore sync on every items change
   useEffect(() => {
-    if (!isFirebaseConfigured) return;
+    if (!isFirebaseConfigured || userId === 'local_user') return;
     if (skipSync.current) { skipSync.current = false; return; }
     clearTimeout(syncTimer.current);
-    syncTimer.current = setTimeout(() => {
-      writeCart(userId, items);
-    }, 600);
+    syncTimer.current = setTimeout(() => writeCart(userId, items), 600);
     return () => clearTimeout(syncTimer.current);
   }, [items, userId]);
 
-  const setAndSync = (updater: (prev: CartItem[]) => CartItem[]) => {
-    setItems(updater);
-  };
+  const mutate = (updater: (prev: CartItem[]) => CartItem[]) => setItems(updater);
 
-  const addItem = (item: Omit<CartItem, 'qty'>, qty = 1) => {
-    setAndSync((prev) => {
-      const existing = prev.find((i) => i.id === item.id);
+  const addItem = (item: Omit<CartItem, 'qty'>, qty = 1) =>
+    mutate(prev => {
+      const existing = prev.find(i => i.id === item.id);
       return existing
-        ? prev.map((i) => (i.id === item.id ? { ...i, qty: i.qty + qty } : i))
+        ? prev.map(i => i.id === item.id ? { ...i, qty: i.qty + qty } : i)
         : [...prev, { ...item, qty }];
     });
-  };
 
-  const removeItem = (id: string | number) => {
-    setAndSync((prev) => prev.filter((i) => i.id !== id));
-  };
+  const removeItem = (id: string | number) =>
+    mutate(prev => prev.filter(i => i.id !== id));
 
   const updateQty = (id: string | number, qty: number) => {
     if (qty <= 0) { removeItem(id); return; }
-    setAndSync((prev) => prev.map((i) => (i.id === id ? { ...i, qty } : i)));
+    mutate(prev => prev.map(i => i.id === id ? { ...i, qty } : i));
   };
 
-  const clearCart = () => setAndSync(() => []);
+  const clearCart = () => mutate(() => []);
 
-  const totalItems = items.reduce((sum, i) => sum + i.qty, 0);
-  const totalPrice = items.reduce((sum, i) => sum + i.price * i.qty, 0);
+  const totalItems = items.reduce((s, i) => s + i.qty, 0);
+  const totalPrice = items.reduce((s, i) => s + i.price * i.qty, 0);
 
   return (
     <CartContext.Provider value={{ items, addItem, removeItem, updateQty, totalItems, totalPrice, clearCart }}>

@@ -23,17 +23,12 @@ interface AppointmentsContextType {
 
 const AppointmentsContext = createContext<AppointmentsContextType | null>(null);
 
-const SEED_APPOINTMENT: Appointment = {
+const SEED: Appointment = {
   id: 'seed-1',
-  doctorName: 'Dr. Priya Sharma',
-  doctorSpec: 'Cardiologist',
-  doctorInitials: 'P',
-  doctorColor: 'from-[#6C63FF] to-[#FF6B9D]',
-  selectedDate: 'Tomorrow',
-  selectedTime: '04:30 PM',
-  selectedType: 'video',
-  bookedAt: new Date().toISOString(),
-  status: 'upcoming',
+  doctorName: 'Dr. Priya Sharma', doctorSpec: 'Cardiologist',
+  doctorInitials: 'P', doctorColor: 'from-[#6C63FF] to-[#FF6B9D]',
+  selectedDate: 'Tomorrow', selectedTime: '04:30 PM', selectedType: 'video',
+  bookedAt: new Date().toISOString(), status: 'upcoming',
 };
 
 export function AppointmentsProvider({ children }: { children: React.ReactNode }) {
@@ -41,34 +36,33 @@ export function AppointmentsProvider({ children }: { children: React.ReactNode }
   const [appointments, setAppointments] = useState<Appointment[]>([]);
 
   useEffect(() => {
-    if (isFirebaseConfigured) {
-      // Real-time Firestore subscription
+    setAppointments([]);
+
+    if (isFirebaseConfigured && userId !== 'local_user') {
       return subscribeToCollection<Appointment>(
         userId, 'appointments', setAppointments, 'bookedAt'
       );
     }
-    // localStorage fallback with seed data for first-time users
+    // localStorage fallback with seed for first-time local users
     const saved = localStorage.getItem('appointments');
     if (saved !== null) {
       setAppointments(JSON.parse(saved));
     } else {
-      setAppointments([SEED_APPOINTMENT]);
-      localStorage.setItem('appointments', JSON.stringify([SEED_APPOINTMENT]));
+      setAppointments([SEED]);
+      localStorage.setItem('appointments', JSON.stringify([SEED]));
     }
   }, [userId]);
 
   const addAppointment = (apt: Omit<Appointment, 'id' | 'bookedAt' | 'status'>) => {
     const newApt: Appointment = {
-      ...apt,
-      id: Date.now().toString(),
-      bookedAt: new Date().toISOString(),
-      status: 'upcoming',
+      ...apt, id: Date.now().toString(),
+      bookedAt: new Date().toISOString(), status: 'upcoming',
     };
 
-    if (isFirebaseConfigured) {
+    if (isFirebaseConfigured && userId !== 'local_user') {
       writeToCollection(userId, 'appointments', newApt);
     } else {
-      setAppointments((prev) => {
+      setAppointments(prev => {
         const updated = [newApt, ...prev];
         localStorage.setItem('appointments', JSON.stringify(updated));
         return updated;

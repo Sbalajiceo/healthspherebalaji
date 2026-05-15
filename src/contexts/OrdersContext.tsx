@@ -34,8 +34,10 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
   const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    if (isFirebaseConfigured) {
-      // Real-time Firestore subscription — unsubscribes on unmount / userId change
+    // Clear state whenever userId changes (covers sign-out and sign-in)
+    setOrders([]);
+
+    if (isFirebaseConfigured && userId !== 'local_user') {
       return subscribeToCollection<Order>(userId, 'orders', setOrders, 'placedAt');
     }
     // localStorage fallback
@@ -44,34 +46,23 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
   }, [userId]);
 
   const addOrder = (
-    items: OrderItem[],
-    subtotal: number,
-    taxes: number,
-    total: number
+    items: OrderItem[], subtotal: number, taxes: number, total: number
   ): string => {
     const orderId = String(Math.floor(Math.random() * 900000) + 100000);
     const newOrder: Order = {
-      id: Date.now().toString(),
-      orderId,
-      items,
-      subtotal,
-      taxes,
-      total,
-      placedAt: new Date().toISOString(),
-      status: 'Processing',
+      id: Date.now().toString(), orderId, items, subtotal, taxes, total,
+      placedAt: new Date().toISOString(), status: 'Processing',
     };
 
-    if (isFirebaseConfigured) {
+    if (isFirebaseConfigured && userId !== 'local_user') {
       writeToCollection(userId, 'orders', newOrder);
-      // onSnapshot listener updates state automatically via latency compensation
     } else {
-      setOrders((prev) => {
+      setOrders(prev => {
         const updated = [newOrder, ...prev];
         localStorage.setItem('orders', JSON.stringify(updated));
         return updated;
       });
     }
-
     return orderId;
   };
 
